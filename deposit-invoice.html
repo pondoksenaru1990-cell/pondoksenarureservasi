@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Invoice - Pondok Senaru</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2d3748; margin: 0; padding: 25px; background: #f8fafc; }
+        .invoice-box { max-width: 800px; margin: auto; border: 1px solid #cbd5e1; padding: 30px; border-radius: 12px; background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto 15px auto; }
+        .lang-switch button { background: #e2e8f0; border: none; padding: 6px 12px; font-weight: 600; cursor: pointer; border-radius: 4px; font-size: 0.85rem; color: #475569; }
+        .lang-switch button.active { background: #003580; color: #ffffff; }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px double #003580; padding-bottom: 18px; margin-bottom: 20px; }
+        .logo-side h1 { margin: 0; color: #003580; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .logo-side .property-type { margin: 2px 0 6px 0; font-size: 0.85rem; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 1px; }
+        .logo-side .address { margin: 0; font-size: 0.8rem; color: #4a5568; line-height: 1.5; }
+        
+        .invoice-badge { text-align: right; }
+        .invoice-badge h2 { margin: 0; color: #dd6b20; font-size: 1.5rem; font-weight: 800; text-transform: uppercase; }
+        .invoice-badge .inv-no { margin-top: 4px; font-size: 0.9rem; font-weight: bold; color: #2d3748; background: #fffaf0; padding: 4px 10px; border-radius: 4px; border: 1px dashed #fbd38d; display: inline-block; }
+        .status-tag { background: #feebc8; color: #c05621; padding: 4px 10px; font-weight: bold; font-size: 0.75rem; border-radius: 4px; text-transform: uppercase; margin-top: 6px; display: inline-block; border: 1px solid #fbd38d; }
+
+        .due-notice { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 12px 15px; margin-bottom: 20px; font-size: 0.88rem; color: #c53030; border-radius: 0 6px 6px 0; }
+
+        .grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 0.88rem; }
+        .detail-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 15px; }
+        .detail-card-title { font-weight: bold; color: #003580; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .info-row label { color: #64748b; }
+        .info-row span { font-weight: 600; color: #1e293b; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.88rem; }
+        .items-table th { background: #003580; color: white; text-align: left; padding: 10px; font-weight: 600; }
+        .items-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+
+        .billing-summary { background: #f1f5f9; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 0.9rem; }
+        .bill-flex { display: flex; justify-content: space-between; padding: 4px 0; }
+        .bill-flex.dp-target { font-weight: bold; font-size: 1.05rem; color: #c05621; background: #feebc8; padding: 10px 12px; border-radius: 6px; margin: 8px 0; border: 1px solid #fbd38d; }
+
+        .payment-instructions { border: 1px solid #93c5fd; border-radius: 8px; padding: 16px; background: #eff6ff; margin-bottom: 20px; font-size: 0.88rem; }
+        .payment-title { font-weight: bold; color: #1e40af; margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+
+        .footer { text-align: center; margin-top: 25px; font-size: 0.78rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+
+        .btn-print { background: #003580; color: white; border: none; padding: 8px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.88rem; transition: background 0.2s; }
+        .btn-print:hover { background: #002255; }
+
+        @media print { 
+            body { padding: 0; background: none; } 
+            .invoice-box { border: none; padding: 0; max-width: 100%; box-shadow: none; } 
+            .top-bar { display: none; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="lang-switch">
+        <button id="btnID" class="active" onclick="setLanguage('id')">🇮🇩 Bahasa Indonesia</button>
+        <button id="btnEN" onclick="setLanguage('en')">🇬🇧 English</button>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨️ <span data-i18n="btnPrint">Cetak Tagihan / Save PDF</span></button>
+</div>
+
+<div class="invoice-box">
+    <div class="header">
+        <div class="logo-side">
+            <h1>Pondok Senaru</h1>
+            <div class="property-type">Cottage & Restaurant</div>
+            <p class="address">
+                Jl. Pariwisata Senaru, Kec. Bayan, Lombok Utara, NTB 83354<br>
+                📞 081803624129 | ✉️ tiwi.pondoksenaru@yahoo.com
+            </p>
+        </div>
+        <div class="invoice-badge">
+            <h2>DEPOSIT INVOICE</h2>
+            <div class="inv-no" id="invNo">INV-000000</div><br>
+            <div class="status-tag" data-i18n="statusTag">MENUNGGU PEMBAYARAN DP</div>
+        </div>
+    </div>
+
+    <div class="due-notice">
+        <strong>⚠️ <span data-i18n="important">PENTING:</span></strong> <span data-i18n="dueText">Silakan lakukan pembayaran Uang Muka (DP) sebelum</span> <span id="invDueDate" style="font-weight: bold;">-</span> <span data-i18n="dueTextEnd">untuk mengunci pemesanan kamar Anda.</span>
+    </div>
+
+    <div class="grid-details">
+        <div class="detail-card">
+            <div class="detail-card-title" data-i18n="cardGuest">👤 Tagihan Kepada (Tamu)</div>
+            <div class="info-row"><label data-i18n="labelName">Nama Tamu:</label> <span id="invGuestName">-</span></div>
+            <div class="info-row"><label data-i18n="labelContact">Kontak/WA:</label> <span id="invGuestContact">-</span></div>
+            <div class="info-row"><label data-i18n="labelEmail">Email:</label> <span id="invGuestEmail">-</span></div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-title" data-i18n="cardStay">📅 Rencana Menginap</div>
+            <div class="info-row"><label data-i18n="labelCheckIn">Check-In:</label> <span id="invCheckIn">-</span></div>
+            <div class="info-row"><label data-i18n="labelCheckOut">Check-Out:</label> <span id="invCheckOut">-</span></div>
+            <div class="info-row"><label data-i18n="labelDuration">Durasi:</label> <span id="invDuration">-</span></div>
+            <div class="info-row"><label data-i18n="labelGuests">Tamu:</label> <span id="invPax">-</span></div>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th data-i18n="thDetail">Detail Akomodasi</th>
+                <th style="text-align: center;" data-i18n="thType">Tipe Kamar</th>
+                <th style="text-align: right;" data-i18n="thRate">Tarif / Malam</th>
+            </tr>
+        </thead>
+        <tbody id="invRoomItemsBody"></tbody>
+    </table>
+
+    <div class="billing-summary">
+        <div class="bill-flex"><span data-i18n="lblSubtotal">Total Subtotal Kamar:</span> <span id="invSubtotal">Rp 0</span></div>
+        <div class="bill-flex dp-target">
+            <span data-i18n="lblDpAmount">Uang Muka (DP 50% Harus Dibayar):</span> 
+            <span id="invDpAmount">Rp 0</span>
+        </div>
+        <div class="bill-flex"><span data-i18n="lblRemaining">Sisa Pelunasan saat Check-In:</span> <span id="invRemaining">Rp 0</span></div>
+    </div>
+
+    <div class="payment-instructions">
+        <div class="payment-title">🏦 <span data-i18n="bankTitle">Instruksi Pembayaran Transfer Bank</span></div>
+        <p style="margin: 4px 0;" data-i18n="bankDesc">Mohon mentransfer nominal DP sesuai di atas ke rekening resmi berikut:</p>
+        <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.6;">
+            <li><strong data-i18n="bankName">Bank:</strong> BCA (Bank Central Asia)</li>
+            <li><strong data-i18n="bankAccNo">No. Rekening:</strong> <span style="font-size: 1.15rem; font-weight: bold; color: #003580; font-family: monospace;">0561608791</span></li>
+            <li><strong data-i18n="bankAccName">Atas Nama:</strong> Rahmawati Rachman</li>
+        </ul>
+        <p style="margin: 8px 0 0 0; font-size: 0.82rem; color: #475569;" data-i18n="bankNote">
+            *Setelah melakukan transfer, mohon kirimkan foto/screenshot bukti transfer ke WhatsApp admin kami di <strong>081803624129</strong> untuk penerbitan Voucher Konfirmasi Resmi.
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>Pondok Senaru Cottage & Restaurant — Senaru, Lombok Utara, NTB</p>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'id';
+
+    const translations = {
+        id: {
+            btnPrint: "Cetak Tagihan / Save PDF",
+            statusTag: "MENUNGGU PEMBAYARAN DP",
+            important: "PENTING:",
+            dueText: "Silakan lakukan pembayaran Uang Muka (DP) sebelum",
+            dueTextEnd: "untuk mengunci pemesanan kamar Anda.",
+            cardGuest: "👤 Tagihan Kepada (Tamu)",
+            labelName: "Nama Tamu:",
+            labelContact: "Kontak/WA:",
+            labelEmail: "Email:",
+            cardStay: "📅 Rencana Menginap",
+            labelCheckIn: "Check-In:",
+            labelCheckOut: "Check-Out:",
+            labelDuration: "Durasi:",
+            labelGuests: "Tamu:",
+            thDetail: "Detail Akomodasi",
+            thType: "Tipe Kamar",
+            thRate: "Tarif / Malam",
+            lblSubtotal: "Total Subtotal Kamar:",
+            lblDpAmount: "Uang Muka (DP 50% Harus Dibayar):",
+            lblRemaining: "Sisa Pelunasan saat Check-In:",
+            bankTitle: "Instruksi Pembayaran Transfer Bank",
+            bankDesc: "Mohon mentransfer nominal DP sesuai di atas ke rekening resmi berikut:",
+            bankName: "Bank:",
+            bankAccNo: "No. Rekening:",
+            bankAccName: "Atas Nama:",
+            bankNote: "*Setelah melakukan transfer, mohon kirimkan foto/screenshot bukti transfer ke WhatsApp admin kami di 081803624129 untuk penerbitan Voucher Konfirmasi Resmi.",
+            nightUnit: "Malam",
+            adultUnit: "Dewasa"
+        },
+        en: {
+            btnPrint: "Print Invoice / Save PDF",
+            statusTag: "WAITING FOR DEPOSIT",
+            important: "IMPORTANT:",
+            dueText: "Please make the Down Payment (DP) before",
+            dueTextEnd: "to guarantee and secure your room reservation.",
+            cardGuest: "👤 Billed To (Guest)",
+            labelName: "Guest Name:",
+            labelContact: "Contact/WA:",
+            labelEmail: "Email:",
+            cardStay: "📅 Stay Details",
+            labelCheckIn: "Check-In:",
+            labelCheckOut: "Check-Out:",
+            labelDuration: "Duration:",
+            labelGuests: "Guests:",
+            thDetail: "Accommodation Details",
+            thType: "Room Type",
+            thRate: "Rate / Night",
+            lblSubtotal: "Subtotal Room Rate:",
+            lblDpAmount: "Down Payment (50% Required):",
+            lblRemaining: "Remaining Balance upon Check-In:",
+            bankTitle: "Bank Transfer Payment Instructions",
+            bankDesc: "Please transfer the required DP amount to the following official bank account:",
+            bankName: "Bank:",
+            bankAccNo: "Account No.:",
+            bankAccName: "Account Name:",
+            bankNote: "*After transferring, please send a photo/screenshot of the transfer receipt to our WhatsApp at 081803624129 to receive your Official Confirmation Voucher.",
+            nightUnit: "Night(s)",
+            adultUnit: "Adult(s)"
+        }
+    };
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('btnID').classList.toggle('active', lang === 'id');
+        document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) {
+                el.innerText = translations[lang][key];
+            }
+        });
+
+        renderData();
+    }
+
+    function renderData() {
+        const rawData = localStorage.getItem('voucherPondokSenaru');
+        if (!rawData) return;
+        const data = JSON.parse(rawData);
+
+        // Hitung Durasi
+        let nights = 1;
+        if (data.checkIn && data.checkOut) {
+            const d1 = new Date(data.checkIn);
+            const d2 = new Date(data.checkOut);
+            nights = Math.ceil((d2 - d1) / (1000 * 3600 * 24)) || 1;
+        }
+
+        document.getElementById('invNo').innerText = "INV-" + (data.bookingId || Date.now().toString().slice(-6));
+        document.getElementById('invGuestName').innerText = data.nama_tamu || data.nama || "-";
+        document.getElementById('invGuestContact').innerText = data.whatsapp || data.telepon || "-";
+        document.getElementById('invGuestEmail').innerText = data.email || "-";
+
+        document.getElementById('invCheckIn').innerText = data.checkIn || "-";
+        document.getElementById('invCheckOut').innerText = data.checkOut || "-";
+        document.getElementById('invDuration').innerText = `${nights} ${translations[currentLang].nightUnit}`;
+
+        // Tenggat Waktu (24 jam)
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 1);
+        const langLocale = currentLang === 'id' ? 'id-ID' : 'en-US';
+        document.getElementById('invDueDate').innerText = dueDate.toLocaleDateString(langLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Item Kamar & Hitung Biaya
+        const tbody = document.getElementById('invRoomItemsBody');
+        tbody.innerHTML = "";
+        let totalSubtotal = 0;
+        let roomCount = 0;
+
+        if (data.items && data.items.length > 0) {
+            roomCount = data.items.length;
+            data.items.forEach(item => {
+                let rate = Number(item.harga_kamar || item.harga) || 0;
+                totalSubtotal += (rate * nights);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${item.nama_kamar || item.kamar}</b></td>
+                        <td style="text-align: center;">${item.tipe_kamar || item.tipe || '-'}</td>
+                        <td style="text-align: right; font-weight:600;">Rp ${rate.toLocaleString('id-ID')} / ${currentLang === 'id' ? 'malam' : 'night'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Jumlah Tamu
+        let adult = (data.paxAdult && data.paxAdult > 0) ? data.paxAdult : (roomCount * 2 || 2);
+        document.getElementById('invPax').innerText = `${adult} ${translations[currentLang].adultUnit}`;
+
+        // Skema DP 50%
+        let dpTarget = totalSubtotal * 0.5;
+        let remaining = totalSubtotal - dpTarget;
+
+        document.getElementById('invSubtotal').innerText = "Rp " + totalSubtotal.toLocaleString('id-ID');
+        document.getElementById('invDpAmount').innerText = "Rp " + dpTarget.toLocaleString('id-ID');
+        document.getElementById('invRemaining').innerText = "Rp " + remaining.toLocaleString('id-ID');
+    }
+
+    window.onload = function() {
+        renderData();
+    };
+</script>
+</body>
+</html>

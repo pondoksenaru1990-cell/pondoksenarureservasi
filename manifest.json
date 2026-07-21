@@ -1,0 +1,22 @@
+{
+  "name": "Pondok Senaru Board",
+  "short_name": "Pondok Senaru",
+  "description": "Sistem Kalender Kamar & Reservasi Pondok Senaru",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#003580",
+  "theme_color": "#003580",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice / Receipt - Pondok Senaru</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 0; padding: 30px; background: #fff; }
+        .invoice-box { max-width: 800px; margin: auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 8px; position: relative; overflow: hidden; }
+        
+        /* DESAIN KOP BARU YANG LENGKAP & ELEGAN */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #003580; padding-bottom: 20px; margin-bottom: 25px; }
+        .logo-side { max-width: 60%; }
+        .logo-side h1 { margin: 0; color: #003580; font-size: 2.1rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+        .logo-side .property-type { margin: 2px 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #dd6b20; text-transform: uppercase; letter-spacing: 1px; }
+        .logo-side .address-details { margin: 0; font-size: 0.8rem; color: #4a5568; line-height: 1.5; }
+        .logo-side .contact-details { margin: 6px 0 0 0; font-size: 0.8rem; color: #1a202c; font-weight: 500; }
+        
+        .inv-side { text-align: right; min-width: 35%; }
+        .inv-side h2 { margin: 0; color: #003580; font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .inv-side .inv-meta { margin: 5px 0 0 0; font-size: 0.95rem; font-weight: bold; color: #2d3748; }
+        .inv-side .inv-date { margin: 3px 0 0 0; font-size: 0.85rem; color: #718096; }
+        
+        .details-table { width: 100%; margin-bottom: 25px; font-size: 0.9rem; }
+        .details-table td { padding: 6px 0; vertical-align: top; }
+        
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
+        .items-table th { background: #003580; color: white; text-align: left; padding: 12px 10px; font-weight: 600; }
+        .items-table td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; }
+        
+        /* TERBILANG BOX */
+        .terbilang-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px; border-radius: 6px; margin-bottom: 25px; font-size: 0.85rem; font-style: italic; color: #475569; }
+        .terbilang-box b { font-style: normal; color: #003580; }
+
+        .summary-wrapper { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 20px; }
+        .payment-info { width: 52%; font-size: 0.85rem; color: #555; white-space: pre-line; line-height: 1.5; }
+        .totals-box { width: 43%; }
+        .total-row { display: flex; justify-content: space-between; padding: 6px 0; }
+        .total-row.grand-total { border-top: 1px solid #cbd5e1; font-weight: bold; font-size: 1.05rem; color: #003580; padding-top: 8px; }
+        .total-row.deposit-row { color: #2e855a; font-weight: 600; }
+        .total-row.sisa-row { border-top: 2px double #cbd5e1; font-weight: bold; font-size: 1.1rem; color: #e63946; padding-top: 8px; margin-top: 4px; }
+        
+        .transfer-notice { margin-top: 10px; padding: 8px 12px; background: #fffaf0; border-left: 3px solid #dd6b20; color: #dd6b20; font-weight: 600; font-size: 0.8rem; border-radius: 4px; display: inline-block; white-space: normal; }
+        
+        /* DIGITAL STAMP PAID */
+        .stamp-paid { display: none; position: absolute; top: 12%; right: 8%; border: 4px double #2e855a; color: #2e855a; font-size: 2.2rem; font-weight: 900; padding: 8px 25px; transform: rotate(-12deg); border-radius: 8px; opacity: 0.85; letter-spacing: 3px; background-color: rgba(255, 255, 255, 0.8); box-shadow: 0 0 8px rgba(0,0,0,0.05); z-index: 10; text-transform: uppercase; }
+
+        .signature-container { display: flex; justify-content: space-between; margin-top: 50px; font-size: 0.9rem; page-break-inside: avoid; position: relative; z-index: 5; }
+        .signature-box { text-align: center; width: 220px; }
+        .signature-line { border-bottom: 1px solid #718096; width: 100%; margin-top: 65px; }
+        
+        .footer { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #888; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        .tax-note { font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 4px; }
+
+        .no-print { display: flex; justify-content: flex-end; gap: 10px; max-width: 800px; margin: 0 auto 15px auto; }
+        .btn-print { background: #febb02; color: #1a202c; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-print:hover { background: #e0a600; }
+        .btn-lang { background: #003580; color: white; border: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-lang:hover { background: #002254; }
+
+        @media print { 
+            body { padding: 0; background: none; } 
+            .invoice-box { border: none; padding: 0; max-width: 100%; } 
+            .no-print { display: none; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn-lang" onclick="toggleLanguage()" id="langBtn">🇬🇧 Change to English</button>
+    <button class="btn-print" onclick="window.print()">𖨨 Cetak Dokumen / Save PDF</button>
+</div>
+
+<div class="invoice-box">
+    <div class="stamp-paid" id="stampPaid">PAID / LUNAS</div>
+
+    <div class="header">
+        <div class="logo-side">
+            <h1>Pondok Senaru</h1>
+            <div class="property-type" id="lblPropertyType">Cottage & Restaurant</div>
+            <p class="address-details">
+                Jl. Pariwisata Senaru, Kec. Bayan, Kabupaten Lombok Utara<br>
+                Nusa Tenggara Barat (NTB) - Indonesia, 83354
+            </p>
+            <p class="contact-details">
+                📞 081803624129 &nbsp;|&nbsp; ✉️ tiwi.pondoksenaru@yahoo.com
+            </p>
+        </div>
+        <div class="inv-side">
+            <h2 id="docTitle">INVOICE</h2>
+            <p class="inv-meta" id="invNumber">INV-xxxxxx</p>
+            <p class="inv-date" id="invDate">Tanggal: -</p>
+        </div>
+    </div>
+
+    <table class="details-table">
+        <tr>
+            <td style="width: 18%; font-weight: 600;" id="lblGuestName">Nama Tamu</td>
+            <td style="width: 2%;">:</td>
+            <td style="width: 30%; font-weight: 600; color: #003580;" id="guestName">-</td>
+            <td style="width: 18%; font-weight: 600;" id="lblStayPeriod">Periode Menginap</td>
+            <td style="width: 2%;">:</td>
+            <td style="width: 30%;" id="stayPeriod">-</td>
+        </tr>
+        <tr>
+            <td>WhatsApp</td>
+            <td>:</td>
+            <td id="guestWhatsapp">-</td>
+            <td id="lblIoDates">Check-In / Out</td>
+            <td>:</td>
+            <td id="ioDates">- / -</td>
+        </tr>
+        <tr>
+            <td style="font-weight: 600;" id="lblPayMethod">Metode Bayar</td>
+            <td>:</td>
+            <td id="payMethod" style="font-weight: 600; color: #003580;">-</td>
+            <td style="font-weight: 600;" id="lblStatusBayar">Status Dokumen</td>
+            <td>:</td>
+            <td id="docStatusBadge" style="font-weight: bold;">-</td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th id="thRoomDesc">Deskripsi Kamar</th>
+                <th style="text-align: right; width: 20%;" id="thRoomPrice">Harga Kamar / Malam</th>
+                <th style="text-align: center; width: 15%;" id="thDuration">Durasi</th>
+                <th style="text-align: center; width: 20%;">Extra Bed</th>
+                <th style="text-align: right; width: 25%;">Total</th>
+            </tr>
+        </thead>
+        <tbody id="invoiceItemsBody"></tbody>
+    </table>
+
+    <div class="terbilang-box" id="terbilangContainer">
+        <b id="lblTerbilang">Terbilang:</b> <span id="terbilangTeks">-</span>
+    </div>
+
+    <div class="summary-wrapper">
+        <div class="payment-info">
+            <b style="color:#003580; font-size: 0.9rem;" id="lblPayInfo">Informasi Pembayaran / Transfer:</b><br>
+            <span id="bankDetails">-</span>
+            <div class="transfer-notice" id="transferNoticeBox">
+                📌 Dokumen ini sah sebagai bukti pembayaran resmi yang diterbitkan oleh manajemen Pondok Senaru.
+            </div>
+        </div>
+        <div class="totals-box">
+            <div class="total-row">
+                <span id="lblSubtotal">Subtotal Pokok</span>
+                <span id="subTotal">Rp 0</span>
+            </div>
+            <div class="total-row deposit-row">
+                <span id="lblDeposit">Uang Muka / Deposit (DP)</span>
+                <span id="depositPaid">- Rp 0</span>
+            </div>
+            <div class="total-row sisa-row">
+                <span id="lblRemaining">Sisa Tagihan</span>
+                <span id="remainingBalance">Rp 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="signature-container">
+        <div class="signature-box">
+            <p style="margin: 0; color: #4a5568;" id="lblPrepared">Prepared by,</p>
+            <p style="margin: 5px 0 0 0; font-weight: bold; color: #1a202c;" id="lblStaff">Hotel Cashier / Staff</p>
+            <div class="signature-line"></div>
+            <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #718096;">Pondok Senaru Auth. Sign</p>
+        </div>
+
+        <div class="signature-box">
+            <p style="margin: 0; color: #4a5568;" id="lblAcknowledged">Acknowledged by,</p>
+            <p style="margin: 5px 0 0 0; font-weight: bold; color: #1a202c;" id="lblGuestSignature">Guest Signature</p>
+            <div class="signature-line"></div>
+            <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #718096; font-weight: 600;" id="guestSignName">-</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span id="lblFooterText">Terima Kasih Telah Memilih Pondok Senaru Sebagai Tempat Menginap Anda.</span>
+        <div class="tax-note" id="lblTaxNote">*Harga kamar sudah termasuk Pajak Daerah & Biaya Pelayanan (Harga Net)</div>
+    </div>
+</div>
+
+<script>
+    let currentLanguage = "ID"; 
+    let globalInvoiceData = null;
+
+    const dictionary = {
+        ID: {
+            btnLang: "🇬🇧 Change to English",
+            lblPropertyType: "Cottage & Restaurant",
+            invDate: "Tanggal",
+            lblGuestName: "Nama Tamu",
+            lblStayPeriod: "Periode Menginap",
+            lblIoDates: "Check-In / Out",
+            thRoomDesc: "Deskripsi Kamar",
+            thRoomPrice: "Harga Kamar / Malam",
+            thDuration: "Durasi",
+            lblPayInfo: "Informasi Pembayaran / Transfer:",
+            transferNotice: "📌 Dokumen ini sah sebagai bukti pembayaran resmi yang diterbitkan oleh manajemen Pondok Senaru.",
+            lblSubtotal: "Subtotal Pokok",
+            lblDeposit: "Uang Muka / Deposit (DP)",
+            lblRemaining: "Sisa Tagihan",
+            lblPrepared: "Diterima Oleh,",
+            lblStaff: "Kasir / Staf Hotel",
+            lblAcknowledged: "Diterima Oleh Tamu,",
+            lblGuestSignature: "Tanda Tangan Tamu",
+            lblFooterText: "Terima Kasih Telah Memilih Pondok Senaru Sebagai Tempat Menginap Anda.",
+            lblTaxNote: "*Harga kamar sudah termasuk Pajak Daerah & Biaya Pelayanan (Harga Net)",
+            lunasStatus: "LUNAS / PAID",
+            nightLabel: "Malam",
+            lblPayMethod: "Metode Bayar",
+            lblStatusBayar: "Status Dokumen",
+            lblTerbilang: "Terbilang:",
+            titleInvoice: "INVOICE (TAGIHAN)",
+            titleReceipt: "RECEIPT / KUITANSI RESMI",
+            statusBelumLunas: "BELUM LUNAS (DEPOSIT)"
+        },
+        EN: {
+            btnLang: "🇮🇩 Ubah ke Bhs. Indonesia",
+            lblPropertyType: "Cottage & Restaurant",
+            invDate: "Date",
+            lblGuestName: "Guest Name",
+            lblStayPeriod: "Staying Period",
+            lblIoDates: "Check-In / Out",
+            thRoomDesc: "Room Description",
+            thRoomPrice: "Room Rate / Night",
+            thDuration: "Duration",
+            lblPayInfo: "Payment & Bank Transfer Information:",
+            transferNotice: "📌 This document is valid as an official payment receipt issued by Pondok Senaru management.",
+            lblSubtotal: "Room Subtotal",
+            lblDeposit: "Down Payment / Deposit (DP)",
+            lblRemaining: "Remaining Balance",
+            lblPrepared: "Prepared by,",
+            lblStaff: "Hotel Cashier / Staff",
+            lblAcknowledged: "Acknowledged by,",
+            lblGuestSignature: "Guest Signature",
+            lblFooterText: "Thank You for Choosing Pondok Senaru as Your Accommodation Place.",
+            lblTaxNote: "*Room rates are inclusive of Local Tax & Service Charge (Net Price)",
+            lunasStatus: "PAID IN FULL",
+            nightLabel: "Night(s)",
+            lblPayMethod: "Payment Method",
+            lblStatusBayar: "Document Status",
+            lblTerbilang: "Amount in Words:",
+            titleInvoice: "INVOICE",
+            titleReceipt: "OFFICIAL RECEIPT",
+            statusBelumLunas: "PARTIALLY PAID (DEPOSIT)"
+        }
+    };
+
+    function terbilangIndonesia(angka) {
+        angka = Math.floor(angka);
+        if (angka === 0) return "Nol Rupiah";
+        const kata = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+        let hasil = "";
+        if (angka < 12) hasil = kata[angka];
+        else if (angka < 20) hasil = terbilangIndonesia(angka - 10) + " Belas";
+        else if (angka < 100) hasil = terbilangIndonesia(angka / 10) + " Puluh " + terbilangIndonesia(angka % 10);
+        else if (angka < 200) hasil = "Seratus " + terbilangIndonesia(angka - 100);
+        else if (angka < 1000) hasil = terbilangIndonesia(angka / 100) + " Ratus " + terbilangIndonesia(angka % 100);
+        else if (angka < 2000) hasil = "Seribu " + terbilangIndonesia(angka - 1000);
+        else if (angka < 1000000) hasil = terbilangIndonesia(angka / 1000) + " Ribu " + terbilangIndonesia(angka % 1000);
+        else if (angka < 1000000000) hasil = terbilangIndonesia(angka / 1000000) + " Juta " + terbilangIndonesia(angka % 1000000);
+        return hasil.trim().replace(/\s+/g, ' ') + " Rupiah";
+    }
+
+    function terbilangEnglish(amount) {
+        amount = Math.floor(amount);
+        if (amount === 0) return "Zero Rupiah";
+        const words = {
+            0: '', 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine',
+            10: 'Ten', 11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', 15: 'Fifteen', 16: 'Sixteen',
+            17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen', 20: 'Twenty', 30: 'Thirty', 40: 'Forty', 50: 'Fifty',
+            60: 'Sixty', 70: 'Seventy', 80: 'Eighty', 90: 'Ninety'
+        };
+        let res = '';
+        if (amount < 20) res = words[amount];
+        else if (amount < 100) res = words[Math.floor(amount / 10) * 10] + ' ' + words[amount % 10];
+        else if (amount < 1000) res = words[Math.floor(amount / 100)] + ' Hundred ' + terbilangEnglish(amount % 100).replace(' Rupiah', '');
+        else if (amount < 1000000) res = terbilangEnglish(Math.floor(amount / 1000)).replace(' Rupiah', '') + ' Thousand ' + terbilangEnglish(amount % 1000).replace(' Rupiah', '');
+        else if (amount < 1000000000) res = terbilangEnglish(Math.floor(amount / 1000000)).replace(' Rupiah', '') + ' Million ' + terbilangEnglish(amount % 1000000).replace(' Rupiah', '');
+        return res.trim().replace(/\s+/g, ' ') + " Rupiah";
+    }
+
+    window.onload = function() {
+        const rawData = localStorage.getItem('invoicePondokSenaru');
+        if (!rawData) {
+            alert("Data invoice tidak ditemukan, silakan buat ulang melalui papan utama kalender.");
+            return;
+        }
+
+        globalInvoiceData = JSON.parse(rawData);
+        renderInvoiceContent();
+    };
+
+    function renderInvoiceContent() {
+        if (!globalInvoiceData) return;
+        const data = globalInvoiceData;
+        const lang = dictionary[currentLanguage];
+
+        // 1. Set Label Bahasa Statis & Kop Terjemahan
+        document.getElementById('langBtn').innerText = lang.btnLang;
+        document.getElementById('lblPropertyType').innerText = lang.lblPropertyType;
+        document.getElementById('lblGuestName').innerText = lang.lblGuestName;
+        document.getElementById('lblStayPeriod').innerText = lang.lblStayPeriod;
+        document.getElementById('lblIoDates').innerText = lang.lblIoDates;
+        document.getElementById('thRoomDesc').innerText = lang.thRoomDesc;
+        document.getElementById('thRoomPrice').innerText = lang.thRoomPrice;
+        document.getElementById('thDuration').innerText = lang.thDuration;
+        document.getElementById('lblPayInfo').innerText = lang.lblPayInfo;
+        document.getElementById('transferNoticeBox').innerText = lang.transferNotice;
+        document.getElementById('lblSubtotal').innerText = lang.lblSubtotal;
+        document.getElementById('lblDeposit').innerText = lang.lblDeposit;
+        document.getElementById('lblRemaining').innerText = lang.lblRemaining;
+        document.getElementById('lblPrepared').innerText = lang.lblPrepared;
+        document.getElementById('lblStaff').innerText = lang.lblStaff;
+        document.getElementById('lblAcknowledged').innerText = lang.lblAcknowledged;
+        document.getElementById('lblGuestSignature').innerText = lang.lblGuestSignature;
+        document.getElementById('lblFooterText').innerText = lang.lblFooterText;
+        document.getElementById('lblTaxNote').innerText = lang.lblTaxNote;
+        document.getElementById('lblPayMethod').innerText = lang.lblPayMethod;
+        document.getElementById('lblStatusBayar').innerText = lang.lblStatusBayar;
+        document.getElementById('lblTerbilang').innerText = lang.lblTerbilang;
+
+        // Hitung Otomatis Selisih Hari / Lama Menginap
+        let nights = 1;
+        if (data.checkIn && data.checkOut) {
+            const date1 = new Date(data.checkIn);
+            const date2 = new Date(data.checkOut);
+            const timeDiff = date2.getTime() - date1.getTime();
+            nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            if (nights <= 0) nights = 1; 
+        }
+
+        // 2. Pasang Data Dinamis dari LocalStorage
+        document.getElementById('invNumber').innerText = data.nomor_inv;
+        document.getElementById('invDate').innerText = lang.invDate + ": " + data.tanggal_inv;
+        document.getElementById('guestName').innerText = data.nama_tamu;
+        document.getElementById('guestWhatsapp').innerText = data.whatsapp;
+        document.getElementById('stayPeriod').innerText = `${nights} ${lang.nightLabel}`;
+        document.getElementById('ioDates').innerText = `${data.checkIn} s/d ${data.checkOut}`;
+        
+        // --- DETEKSI PINTAR UNTUK METODE PEMBAYARAN RESERVASI ---
+        let detectedMethod = data.metode_bayar || data.metode_pembayaran || data.metodePembayaran || data.payment_method || data.payment_type || "";
+        
+        if (detectedMethod && detectedMethod.trim() !== "" && detectedMethod !== "-") {
+            document.getElementById('payMethod').innerText = detectedMethod;
+        } else {
+            document.getElementById('payMethod').innerText = "Tunai / Transfer Bank";
+        }
+
+        // Info Rekening Dinamis Aman (Menyesuaikan masa transisi rekening baru)
+        if (data.info_rekening && data.info_rekening.trim() !== "" && data.info_rekening !== "-") {
+            document.getElementById('bankDetails').innerText = data.info_rekening;
+        } else {
+            document.getElementById('bankDetails').innerText = "Kontak Kasir/Resepsionis untuk nomor rekening terbaru aktif.";
+        }
+
+        document.getElementById('guestSignName').innerText = data.nama_tamu;
+
+        // 3. Render Daftar Item Kamar
+        const tbody = document.getElementById('invoiceItemsBody');
+        tbody.innerHTML = "";
+
+        let akumulasiTotalHargaSemuaKamar = 0;
+
+        if(data.items && data.items.length > 0) {
+            data.items.forEach(item => {
+                let hargaKamarPerMalam = Number(item.harga_kamar) || 0;
+                let qtyExbed = Number(item.exbed_qty) || 0;
+                let hargaExbedPerUnit = Number(item.exbed_price) || 0;
+                
+                let totalSewaKamarKalkulasi = hargaKamarPerMalam * nights;
+                let totalExtraBedKalkulasi = (qtyExbed * hargaExbedPerUnit) * nights;
+                let totalPerKamarKalkulasi = totalSewaKamarKalkulasi + totalExtraBedKalkulasi;
+
+                akumulasiTotalHargaSemuaKamar += totalPerKamarKalkulasi;
+
+                let exbedText = qtyExbed > 0 ? `${qtyExbed} Unit × Rp ${hargaExbedPerUnit.toLocaleString('id-ID')}` : "-";
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${item.nama_kamar}</b><br><span style="font-size:0.8rem; color:#718096;">${item.tipe_kamar}</span></td>
+                        <td style="text-align: right;">Rp ${hargaKamarPerMalam.toLocaleString('id-ID')}</td>
+                        <td style="text-align: center;">${nights} ${lang.nightLabel}</td>
+                        <td style="text-align: center;">${exbedText}</td>
+                        <td style="text-align: right; font-weight: 600; color: #003580;">Rp ${totalPerKamarKalkulasi.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 4. Kalkulasi Keuangan Akhir & Logika Transformasi Dokumen Resmi (Invoice vs Receipt)
+        let depositHarga = Number(data.deposit_harga) || 0;
+        let sisaTagihan = Math.max(0, akumulasiTotalHargaSemuaKamar - depositHarga);
+
+        document.getElementById('subTotal').innerText = "Rp " + akumulasiTotalHargaSemuaKamar.toLocaleString('id-ID');
+        document.getElementById('depositPaid').innerText = "- Rp " + depositHarga.toLocaleString('id-ID');
+        
+        if (sisaTagihan === 0) {
+            // JIKA LUNAS -> Berubah Menjadi Kuitansi Sah
+            document.getElementById('docTitle').innerText = lang.titleReceipt;
+            document.getElementById('remainingBalance').innerText = lang.lunasStatus;
+            document.getElementById('remainingBalance').style.color = "#2e855a";
+            
+            document.getElementById('docStatusBadge').innerText = lang.lunasStatus;
+            document.getElementById('docStatusBadge').style.color = "#2e855a";
+            
+            // Tampilkan Stempel PAID Digital
+            document.getElementById('stampPaid').style.display = "block";
+
+            // Terbilang mengambil total lunas yang dibayarkan
+            if (currentLanguage === "ID") {
+                document.getElementById('terbilangTeks').innerText = terbilangIndonesia(akumulasiTotalHargaSemuaKamar);
+            } else {
+                document.getElementById('terbilangTeks').innerText = terbilangEnglish(akumulasiTotalHargaSemuaKamar);
+            }
+        } else {
+            // JIKA BELUM LUNAS -> Tetap sebagai Invoice Tagihan
+            document.getElementById('docTitle').innerText = lang.titleInvoice;
+            document.getElementById('remainingBalance').innerText = "Rp " + sisaTagihan.toLocaleString('id-ID');
+            document.getElementById('remainingBalance').style.color = "#e63946";
+            
+            document.getElementById('docStatusBadge').innerText = lang.statusBelumLunas;
+            document.getElementById('docStatusBadge').style.color = "#dd6b20";
+            
+            // Sembunyikan Stempel PAID Digital
+            document.getElementById('stampPaid').style.display = "none";
+
+            // Terbilang mengambil sisa tagihan yang harus dibayar
+            if (currentLanguage === "ID") {
+                document.getElementById('terbilangTeks').innerText = terbilangIndonesia(sisaTagihan);
+            } else {
+                document.getElementById('terbilangTeks').innerText = terbilangEnglish(sisaTagihan);
+            }
+        }
+    }
+
+    function toggleLanguage() {
+        currentLanguage = currentLanguage === "ID" ? "EN" : "ID";
+        renderInvoiceContent();
+    }
+</script>
+</body>
+</html>

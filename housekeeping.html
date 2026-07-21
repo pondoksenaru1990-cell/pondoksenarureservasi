@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pondok Senaru - Housekeeping Team</title>
+    <style>
+        :root {
+            --primary-color: #003580;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            
+            /* Status Colors */
+            --checkout-color: #ef4444;
+            --checkout-bg: #fef2f2;
+            --stayover-color: #f97316;
+            --stayover-bg: #fff7ed;
+            --checkin-color: #22c55e;
+            --checkin-bg: #f0fdf4;
+            --empty-room-color: #64748b;
+            --empty-room-bg: #f1f5f9;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            padding: 12px;
+            padding-bottom: 80px; 
+        }
+
+        .app-header {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .app-header h1 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            font-weight: 800;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .app-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .date-picker {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .btn-refresh {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .hk-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .sec-co { color: var(--checkout-color); }
+        .sec-co .badge { background-color: var(--checkout-color); }
+        .sec-so { color: var(--stayover-color); }
+        .sec-so .badge { background-color: var(--stayover-color); }
+        .sec-ci { color: var(--checkin-color); }
+        .sec-ci .badge { background-color: var(--checkin-color); }
+        .sec-empty { color: var(--empty-room-color); }
+        .sec-empty .badge { background-color: var(--empty-room-color); }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .card-co { border-left: 5px solid var(--checkout-color); background: var(--checkout-bg); }
+        .card-so { border-left: 5px solid var(--stayover-color); background: var(--stayover-bg); }
+        .card-ci { border-left: 5px solid var(--checkin-color); background: var(--checkin-bg); }
+        .card-empty { border-left: 5px solid var(--empty-room-color); background: var(--empty-room-bg); }
+
+        .status-checkbox-container {
+            margin-top: 2px;
+        }
+
+        .hk-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .guest-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+
+        .detail-line {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .hk-spec-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 4px;
+            margin-right: 4px;
+        }
+
+        .hk-instruction-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            margin-right: 4px;
+        }
+        .instruction-co { background-color: #fee2e2; color: #991b1b; }
+        .instruction-so { background-color: #ffedd5; color: #9a3412; }
+        .instruction-ci { background-color: #dcfce7; color: #166534; }
+        .instruction-empty { background-color: #f1f5f9; color: #334155; }
+
+        .notes-area {
+            margin-top: 8px;
+            background: #fffbeb;
+            border: 1px dashed #f59e0b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .timestamp-log {
+            font-size: 0.75rem;
+            color: #10b981;
+            font-weight: bold;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-card.is-cleaned {
+            opacity: 0.45;
+            background: #f1f5f9 !important;
+            border-left-color: #94a3b8 !important;
+        }
+        .task-card.is-cleaned .room-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 20px 0;
+            font-style: italic;
+        }
+
+        .float-wa-btn {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background-color: #25d366;
+            color: white;
+            border-radius: 50px;
+            text-align: center;
+            padding: 12px 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9999;
+        }
+
+        .float-wa-btn:hover {
+            background-color: #128c7e;
+        }
+
+        .footer-credit {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">📋</a> 🧹 Pondok Senaru HK</h1>
+    <p>Manajemen pembersihan kamar operasional harian.</p>
+    <div class="control-row">
+        <input type="date" id="targetDate" class="date-picker" onchange="loadHousekeepingData()">
+        <button class="btn-refresh" onclick="loadHousekeepingData()">🔄</button>
+    </div>
+</div>
+
+<div class="hk-section sec-co">
+    <h2 class="section-title">
+        <span>🛑 Check-Out (Bersih Total)</span>
+        <span class="badge" id="badgeCO">0</span>
+    </h2>
+    <div class="task-list" id="listCheckout"></div>
+</div>
+
+<div class="hk-section sec-so">
+    <h2 class="section-title">
+        <span>🔄 Stay Over (Make Up Room)</span>
+        <span class="badge" id="badgeSO">0</span>
+    </h2>
+    <div class="task-list" id="listStayover"></div>
+</div>
+
+<div class="hk-section sec-ci">
+    <h2 class="section-title">
+        <span>🟢 Check-In (Siapkan Kamar)</span>
+        <span class="badge" id="badgeCI">0</span>
+    </h2>
+    <div class="task-list" id="listCheckin"></div>
+</div>
+
+<div class="hk-section sec-empty">
+    <h2 class="section-title">
+        <span>✨ Kamar Kosong (Sapu & Cek Ringan)</span>
+        <span class="badge" id="badgeEmpty">0</span>
+    </h2>
+    <div class="task-list" id="listEmptyRooms"></div>
+</div>
+
+<a href="https://wa.me/6281803624129?text=Halo%20Resepsionis%20Pondok%20Senaru,%20tim%20Housekeeping%20ingin%20melaporkan%20kendala..." target="_blank" class="float-wa-btn">
+    💬 Hubungi Resepsionis
+</a>
+
+<div class="footer-credit">
+    Pondok Senaru System &copy; 2026
+</div>
+
+<script>
+    const BASE_DB_URL = "https://kalender-8a7b2-default-rtdb.firebaseio.com/";
+    
+    const namaKamar = {
+        "room_1": "Kamar 01", "room_2": "Kamar 02", "room_3": "Kamar 03", "room_4": "Kamar 04",
+        "room_5": "Kamar 05", "room_6": "Kamar 06", "room_7": "Kamar 07", "room_8": "Kamar 08"
+    };
+
+    window.onload = function() {
+        const hariIni = new Date();
+        document.getElementById('targetDate').value = hariIni.toISOString().split('T')[0];
+        loadHousekeepingData();
+    };
+
+    function loadHousekeepingData() {
+        const tglTerpilih = document.getElementById('targetDate').value;
+        if (!tglTerpilih) return;
+
+        fetch(`${BASE_DB_URL}bookings.json`)
+        .then(response => response.json())
+        .then(allData => {
+            olahDataHK(allData || {}, tglTerpilih);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Gagal terhubung ke database.");
+        });
+    }
+
+    function hitungJumlahMalam(ci, co) {
+        if(!ci || !co || ci === "-" || co === "-") return 0;
+        const selisihWaktu = Math.abs(new Date(co) - new Date(ci));
+        return Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+    }
+
+    function olahDataHK(database, tglTarget) {
+        let arrCheckout = [];
+        let arrStayover = [];
+        let arrCheckin = [];
+        let arrEmpty = [];
+
+        const tglTargetObj = new Date(tglTarget + "T00:00:00");
+
+        for (let i = 1; i <= 8; i++) {
+            const keyKamar = `room_${i}`;
+            
+            let cleanedState = database[tglTarget]?.[keyKamar]?.cleaned === true;
+            let cleanedTimeStr = database[tglTarget]?.[keyKamar]?.cleaned_time || "";
+
+            let bookingCheckOutHariIni = null;
+            let bookingCheckInHariIni = null;
+            let bookingStayOverHariIni = null;
+
+            for (const tanggalNode in database) {
+                const dataKamarDiTanggal = database[tanggalNode]?.[keyKamar];
+                if (dataKamarDiTanggal && dataKamarDiTanggal.status === "booked") {
+                    const ci = new Date((dataKamarDiTanggal.checkInDate || tanggalNode) + "T00:00:00");
+                    const co = new Date((dataKamarDiTanggal.checkOutDate || tanggalNode) + "T00:00:00");
+                    
+                    if (tglTargetObj >= ci && tglTargetObj <= co) {
+                        let jlmMalam = hitungJumlahMalam(dataKamarDiTanggal.checkInDate, dataKamarDiTanggal.checkOutDate);
+                        let catatanReservasiAsli = dataKamarDiTanggal.notes || dataKamarDiTanggal.note || "";
+                        if (catatanReservasiAsli === "null" || catatanReservasiAsli === null) catatanReservasiAsli = "";
+                        
+                        let totalTamu = dataKamarDiTanggal.guestQty || "2"; 
+                        let extraBedQty = Number(dataKamarDiTanggal.extraBedQty) || 0;
+                        let logistikInfo = `👥 ${totalTamu} Tamu` + (extraBedQty > 0 ? ` | 🛏️ +${extraBedQty} Extra Bed` : "");
+
+                        let dataPaket = {
+                            keyKamar: keyKamar,
+                            data: {
+                                nama: dataKamarDiTanggal.nama,
+                                checkInDate: dataKamarDiTanggal.checkInDate,
+                                checkOutDate: dataKamarDiTanggal.checkOutDate,
+                                durasi: `${jlmMalam} Malam`,
+                                notes: catatanReservasiAsli,
+                                logistik: logistikInfo,
+                                cleaned: cleanedState,
+                                cleaned_time: cleanedTimeStr
+                            },
+                            isEmpty: false
+                        };
+
+                        if (dataKamarDiTanggal.checkOutDate === tglTarget) {
+                            bookingCheckOutHariIni = dataPaket;
+                        } else if (dataKamarDiTanggal.checkInDate === tglTarget) {
+                            bookingCheckInHariIni = dataPaket;
+                        } else {
+                            bookingStayOverHariIni = dataPaket;
+                        }
+                    }
+                }
+            }
+
+            let adaAktivitas = false;
+
+            if (bookingCheckOutHariIni) {
+                arrCheckout.push(bookingCheckOutHariIni);
+                adaAktivitas = true;
+            }
+            if (bookingCheckInHariIni) {
+                arrCheckin.push(bookingCheckInHariIni);
+                adaAktivitas = true;
+            }
+            if (bookingStayOverHariIni) {
+                arrStayover.push(bookingStayOverHariIni);
+                adaAktivitas = true;
+            }
+
+            if (!adaAktivitas) {
+                arrEmpty.push({
+                    keyKamar: keyKamar,
+                    data: {
+                        nama: "Tidak Ada Tamu",
+                        checkInDate: "-",
+                        checkOutDate: "-",
+                        durasi: "-",
+                        notes: "",
+                        logistik: "",
+                        cleaned: cleanedState,
+                        cleaned_time: cleanedTimeStr
+                    },
+                    isEmpty: true
+                });
+            }
+        }
+
+        renderKategori("listCheckout", "badgeCO", arrCheckout, "card-co", tglTarget);
+        renderKategori("listStayover", "badgeSO", arrStayover, "card-so", tglTarget);
+        renderKategori("listCheckin", "badgeCI", arrCheckin, "card-ci", tglTarget);
+        renderKategori("listEmptyRooms", "badgeEmpty", arrEmpty, "card-empty", tglTarget);
+    }
+
+    function renderKategori(elementId, badgeId, arrayData, cssKategori, tglTarget) {
+        document.getElementById(badgeId).innerText = arrayData.length;
+        const container = document.getElementById(elementId);
+        container.innerHTML = "";
+
+        if (arrayData.length === 0) {
+            container.innerHTML = `<div class="empty-msg">Tidak ada tugas untuk kategori ini.</div>`;
+            return;
+        }
+
+        arrayData.forEach(item => {
+            const b = item.data;
+            const rKey = item.keyKamar;
+            const displayCleaned = b.cleaned === true ? "is-cleaned" : "";
+            const checkedAttr = b.cleaned === true ? "checked" : "";
+            
+            let catatanHTML = "";
+            if (b.notes && b.notes.trim() !== "") {
+                catatanHTML = `<div class="notes-area">📌 Note: ${b.notes}</div>`;
+            }
+            
+            let logistikHTML = b.logistik ? `<div class="hk-spec-badge">${b.logistik}</div>` : "";
+            let timestampHTML = (b.cleaned === true && b.cleaned_time) ? `<div class="timestamp-log" id="time_${tglTarget}_${rKey}">✔️ Selesai jam: ${b.cleaned_time}</div>` : `<div class="timestamp-log" id="time_${tglTarget}_${rKey}"></div>`;
+
+            // Membuat Keterangan Tugas Dinamis Sesuai Jenis Kartu
+            let instruksiHTML = "";
+            if (cssKategori === "card-co") {
+                instruksiHTML = `<span class="hk-instruction-badge instruction-co">🧹 BERSIH TOTAL</span>`;
+            } else if (cssKategori === "card-so") {
+                instruksiHTML = `<span class="hk-instruction-badge instruction-so">🧺 GANTI HANDUK & MAKE UP ROOM</span>`;
+            } else if (cssKategori === "card-ci") {
+                instruksiHTML = `<span class="hk-instruction-badge instruction-ci">✨ SIAPKAN KAMAR</span>`;
+            } else if (cssKategori === "card-empty") {
+                instruksiHTML = `<span class="hk-instruction-badge instruction-empty">🧹 SAPU & CHECK-CHECK</span>`;
+            }
+
+            let infoTamuHTML = `
+                <div class="guest-name">👤 ${b.nama} <span style="font-size: 0.8rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569; margin-left: 5px;">🌙 ${b.durasi}</span></div>
+                <div class="detail-line">📅 Stay: ${b.checkInDate} s/d ${b.checkOutDate}</div>
+            `;
+
+            if (item.isEmpty) {
+                infoTamuHTML = `<div class="guest-name" style="color: #64748b; font-style: italic;">🟢 Kamar Kosong</div>`;
+            }
+
+            container.innerHTML += `
+                <div class="task-card ${cssKategori} ${displayCleaned}" id="card_${tglTarget}_${rKey}">
+                    <div class="status-checkbox-container">
+                        <input type="checkbox" class="hk-checkbox" ${checkedAttr} onclick="toggleStatusKebersihan('${tglTarget}', '${rKey}', this)">
+                    </div>
+                    <div class="card-content">
+                        <div class="room-title">${namaKamar[rKey] || rKey}</div>
+                        ${infoTamuHTML}
+                        <div>
+                            ${instruksiHTML}
+                            ${logistikHTML}
+                        </div>
+                        ${catatanHTML}
+                        ${timestampHTML}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function toggleStatusKebersihan(tgl, rKey, elemenCheckbox) {
+        const isChecked = elemenCheckbox.checked;
+        const kartuTugas = document.getElementById(`card_${tgl}_${rKey}`);
+        const logWaktuElemen = document.getElementById(`time_${tgl}_${rKey}`);
+        
+        let jamSelesai = "";
+        if (isChecked) {
+            kartuTugas.classList.add("is-cleaned");
+            const skrg = new Date();
+            jamSelesai = String(skrg.getHours()).padStart(2, '0') + ":" + String(skrg.getMinutes()).padStart(2, '0');
+            logWaktuElemen.innerText = `✔️ Selesai jam: ${jamSelesai}`;
+        } else {
+            kartuTugas.classList.remove("is-cleaned");
+            logWaktuElemen.innerText = "";
+        }
+
+        fetch(`${BASE_DB_URL}bookings/${tgl}/${rKey}/cleaned.json`, {
+            method: 'PUT',
+            body: JSON.stringify(isChecked)
+        });
+
+        fetch(`${BASE_DB_URL}bookings/${tgl}/${rKey}/cleaned_time.json`, {
+            method: 'PUT',
+            body: JSON.stringify(jamSelesai)
+        }).catch(err => {
+            console.error(err);
+        });
+    }
+</script>
+</body>
+</html>

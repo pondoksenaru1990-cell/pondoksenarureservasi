@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pengaturan Reservasi - Pondok Senaru</title>
+    <style>
+        :root {
+            --primary-color: #003580;
+            --bg-body: #f4f6f9;
+            --text-main: #1a202c;
+            --border-color: #cbd5e1;
+            --booked-color: #e63946;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+            background-color: var(--bg-body); padding: 15px; color: var(--text-main); 
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .btn-back-home {
+            background: white; color: var(--primary-color); border: 2px solid var(--primary-color);
+            padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 15px; display: inline-block; text-decoration: none; font-size: 0.9rem;
+        }
+
+        .main-form-area { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .modal-body-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .form-left-panel { display: flex; flex-direction: column; gap: 12px; }
+        .form-section-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+        .section-title { font-size: 0.8rem; font-weight: bold; color: var(--primary-color); text-transform: uppercase; border-bottom: 1px solid #edf2f7; padding-bottom: 4px; margin-bottom: 10px; }
+        
+        .grid-inputs-2, .grid-inputs-3 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; font-size: 0.75rem; color: #4a5568; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 0.85rem; }
+        
+        .multi-room-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; background: white; padding: 8px; border-radius: 6px; border: 1px dashed #cbd5e0; }
+        .multi-room-item { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+
+        .billing-right-panel { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .bill-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0; color: #4a5568; }
+        .bill-row.total-bill-box { background: #ebf8ff; padding: 8px; border-radius: 5px; font-weight: bold; color: var(--primary-color); font-size: 0.9rem; border: 1px solid #bee3f8; }
+        
+        .panel-footer-actions { background: #edf2f7; padding: 12px; display: flex; flex-direction: column-reverse; gap: 8px; border-top: 1px solid #e2e8f0; margin-top: 15px; border-radius: 8px; }
+        .btn-action { padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; border: none; font-size: 0.85rem; text-align: center; width: 100%; }
+        .btn-close { background: #cbd5e0; color: #4a5568; text-decoration: none; }
+        .btn-delete { background: var(--booked-color); color: white; }
+        .btn-save { background: var(--primary-color); color: white; }
+
+        @media (min-width: 600px) {
+            body { padding: 25px; }
+            .grid-inputs-2 { grid-template-columns: 1fr 1fr; }
+            .grid-inputs-3 { grid-template-columns: 1fr 1fr 1fr; }
+            .multi-room-selector { grid-template-columns: repeat(4, 1fr); }
+            .modal-body-grid { grid-template-columns: 1fr 300px; }
+            .panel-footer-actions { flex-direction: row; justify-content: flex-end; }
+            .btn-action { width: auto; }
+            .btn-delete { margin-right: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" id="btnBackTop" class="btn-back-home">⬅ Kembali ke Kalender</a>
+
+    <div class="main-form-area">
+        <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color); margin-bottom: 15px;" id="modalActiveRoomLabel">
+            Form Alokasi Kamar
+        </div>
+        
+        <div class="modal-body-grid">
+            <div class="form-left-panel">
+                <div class="form-section-card">
+                    <div class="section-title">🏢 Alokasikan ke Kamar</div>
+                    <div class="multi-room-selector" id="multiRoomCheckboxes"></div>
+                </div>
+
+                <div class="form-section-card">
+                    <div class="section-title">👤 Data Pelanggan / Tamu</div>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label>Nama Tamu / Travel Agent / OTA:</label>
+                        <input type="text" id="editNamaTamu" placeholder="Contoh: Mr. Alex">
+                    </div>
+                    <div class="grid-inputs-2">
+                        <div class="form-group">
+                            <label>No. Kontak/WhatsApp:</label>
+                            <input type="text" id="editKontakTamu" placeholder="081907xxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="editEmailTamu" placeholder="tamu@email.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-card">
+                    <div class="section-title">📅 Status & Periode Menginap</div>
+                    <div class="grid-inputs-2" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>Check-In:</label>
+                            <input type="date" id="editCheckIn">
+                        </div>
+                        <div class="form-group">
+                            <label>Check-Out (Tanggal Keluar):</label>
+                            <input type="date" id="editCheckOut">
+                        </div>
+                    </div>
+                    <div class="grid-inputs-3">
+                        <div class="form-group">
+                            <label>Dewasa:</label>
+                            <input type="number" id="editPaxAdult" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Anak-anak:</label>
+                            <input type="number" id="editPaxChild" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Status Operasional Kamar:</label>
+                            <select id="editOpeStatus">
+                                <option value="booked">🔒 Reserved (Pasti / Sudah DP)</option>
+                                <option value="hold">⏳ Hold (Kunci Sementara Admin WA)</option>
+                                <option value="CheckedIn">🔵 Checked In (In-House)</option>
+                                <option value="CheckedOut">🔴 Checked Out (Selesai / Perlu HK)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-card">
+                    <div class="section-title">💰 Keuangan & Skema Harga (Per Kamar)</div>
+                    <div class="grid-inputs-2" style="margin-bottom: 10px;">
+                        <div class="form-group">
+                            <label>Harga Kamar / Malam (Rp):</label>
+                            <input type="number" id="editHargaKamar" oninput="liveCalculateBilling()">
+                        </div>
+                        <div class="form-group">
+                            <label>Uang Masuk / DP / Paid (Rp):</label>
+                            <input type="number" id="editDeposit" oninput="liveCalculateBilling()">
+                        </div>
+                    </div>
+                    <div class="grid-inputs-3">
+                        <div class="form-group">
+                            <label>Jumlah Extra Bed:</label>
+                            <input type="number" id="editExtraBedQty" value="0" oninput="liveCalculateBilling()">
+                        </div>
+                        <div class="form-group">
+                            <label>Harga Satuan ExBed:</label>
+                            <input type="number" id="editExtraBedPrice" value="150000" oninput="liveCalculateBilling()">
+                        </div>
+                        <div class="form-group">
+                            <label>Metode Pembayaran:</label>
+                            <select id="editMethod" onchange="liveCalculateBilling()">
+                                <option value="Cash">Tunai / Cash</option>
+                                <option value="EDC">EDC / Transfer Bank</option>
+                                <option value="Invoice / Agent">Invoice / Tagihan Agent</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section-card">
+                    <div class="section-title">📝 Catatan Tambahan</div>
+                    <div class="form-group">
+                        <textarea id="editNotes" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="billing-right-panel">
+                <div>
+                    <div class="section-title" style="margin-bottom:15px;">📊 Kalkulasi Per Kamar</div>
+                    <div class="bill-row"><span>Sewa Kamar:</span><span id="liveRoomPrice">Rp 0</span></div>
+                    <div class="bill-row" style="border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px;"><span>Biaya Extra Bed:</span><span id="liveExtraBedPrice">Rp 0</span></div>
+                    <div class="bill-row" style="font-weight: 600;"><span>Subtotal Pokok:</span><span id="liveSubtotal">Rp 0</span></div>
+                    <div class="bill-row total-bill-box"><span>Total Tagihan:</span><span id="liveTotalBill">Rp 0</span></div>
+                    <div class="bill-row" style="margin-top:10px; color:#2e855a; font-weight: 600;"><span>Telah Dibayar:</span><span id="livePaid">Rp 0</span></div>
+                </div>
+
+                <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px; margin-top: 5px;">
+                    <div class="section-title" style="margin-bottom:10px; font-size:0.75rem;">💳 Rekening Bank Resmi</div>
+                    <div class="form-group" style="margin-bottom: 6px;"><label>Nama Bank:</label><input type="text" id="editBankNama" value="Bank Rakyat Indonesia (BRI)"></div>
+                    <div class="form-group" style="margin-bottom: 6px;"><label>No Rek:</label><input type="text" id="editBankNomor" value="0568 0100 0341 562"></div>
+                    <div class="form-group"><label>Atas Nama:</label><input type="text" id="editBankPemilik" value="PT PONDOK SENARU COTTAGE RESTAURANT"></div>
+                </div>
+
+                <div>
+                    <div class="bill-row">
+                        <span>Sisa Piutang:</span>
+                        <span id="liveRemainingBill" style="font-weight: bold; color: #e53e3e;">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel-footer-actions">
+            <button onclick="deleteBooking()" id="btnHapus" class="btn-action btn-delete">Hapus Booking</button>
+            <a href="index.html" id="btnBatal" class="btn-action btn-close">Batal</a>
+            <button onclick="saveEditBooking()" id="btnSimpan" class="btn-action btn-save">Simpan Reservasi</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const FIREBASE_URL = "https://kalender-8a7b2-default-rtdb.firebaseio.com/";
+    let globalFirebaseData = {};
+    let selectedDateStr = "", selectedRoomKey = "";
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        selectedDateStr = urlParams.get('date');
+        selectedRoomKey = urlParams.get('room') || "";
+
+        if(selectedDateStr) {
+            document.getElementById('btnBackTop').href = `index.html?date=${selectedDateStr}`;
+            document.getElementById('btnBatal').href = `index.html?date=${selectedDateStr}`;
+        }
+
+        fetch(`${FIREBASE_URL}bookings.json`)
+        .then(res => res.json())
+        .then(data => {
+            globalFirebaseData = data || {};
+            initFormValues();
+        });
+    };
+
+    function initFormValues() {
+        const checkboxContainer = document.getElementById('multiRoomCheckboxes');
+        checkboxContainer.innerHTML = "";
+        for(let r=1; r<=8; r++) {
+            let rK = `room_${r}`;
+            let checkedAttr = (rK === selectedRoomKey) ? "checked" : "";
+            checkboxContainer.innerHTML += `
+                <label class="multi-room-item"><input type="checkbox" value="${rK}" class="target-room-cb" ${checkedAttr}> Kmr ${r}</label>
+            `;
+        }
+
+        if(selectedRoomKey) {
+            document.getElementById('modalActiveRoomLabel').innerText = `✏️ Pengaturan Kamar ${selectedRoomKey.replace('room_', '')}`;
+        } else {
+            document.getElementById('modalActiveRoomLabel').innerText = `➕ Form Reservasi Baru`;
+        }
+
+        if (selectedRoomKey && globalFirebaseData[selectedDateStr]?.[selectedRoomKey]) {
+            let b = globalFirebaseData[selectedDateStr][selectedRoomKey];
+            document.getElementById('btnHapus').style.display = "inline-block";
+            document.getElementById('editNamaTamu').value = b.nama || "";
+            document.getElementById('editHargaKamar').value = b.harga || 0;
+            document.getElementById('editExtraBedQty').value = b.extraBedQty || 0;
+            document.getElementById('editDeposit').value = b.deposit || 0;
+            document.getElementById('editMethod').value = b.method || "Cash";
+            document.getElementById('editKontakTamu').value = b.kontak || "";
+            document.getElementById('editEmailTamu').value = b.email || "";
+            document.getElementById('editCheckIn').value = b.checkInDate || selectedDateStr;
+            
+            // Mengatur default Check-Out (CheckIn + 1 Hari jika belum ada)
+            if (b.checkOutDate) {
+                document.getElementById('editCheckOut').value = b.checkOutDate;
+            } else {
+                let dIn = new Date(selectedDateStr);
+                dIn.setDate(dIn.getDate() + 1);
+                document.getElementById('editCheckOut').value = dIn.toISOString().split('T')[0];
+            }
+
+            document.getElementById('editOpeStatus').value = b.status || "booked";
+            document.getElementById('editNotes').value = (b.notes === "null" ? "" : b.notes) || "";
+            document.getElementById('editBankNama').value = b.bankNama || "Bank Rakyat Indonesia (BRI)";
+            document.getElementById('editBankNomor').value = b.bankNomor || "0568 0100 0341 562";
+            document.getElementById('editBankPemilik').value = b.bankPemilik || "PT PONDOK SENARU COTTAGE RESTAURANT";
+        } else {
+            document.getElementById('btnHapus').style.display = "none";
+            document.getElementById('editNamaTamu').value = "";
+            document.getElementById('editHargaKamar').value = 450000;
+            document.getElementById('editExtraBedQty').value = 0;
+            document.getElementById('editDeposit').value = 0;
+            document.getElementById('editMethod').value = "Cash";
+            document.getElementById('editKontakTamu').value = "";
+            document.getElementById('editCheckIn').value = selectedDateStr;
+
+            let dIn = new Date(selectedDateStr);
+            dIn.setDate(dIn.getDate() + 1);
+            document.getElementById('editCheckOut').value = dIn.toISOString().split('T')[0];
+
+            document.getElementById('editNotes').value = "";
+        }
+        liveCalculateBilling();
+    }
+
+    function liveCalculateBilling() {
+        let harga = Number(document.getElementById('editHargaKamar').value) || 0;
+        let deposit = Number(document.getElementById('editDeposit').value) || 0;
+        let exQty = Number(document.getElementById('editExtraBedQty').value) || 0;
+        let exPrice = Number(document.getElementById('editExtraBedPrice').value) || 150000;
+        
+        let subEx = exQty * exPrice;
+        let totalBill = harga + subEx;
+        let sisa = Math.max(0, totalBill - deposit);
+
+        document.getElementById('liveRoomPrice').innerText = "Rp " + harga.toLocaleString('id-ID');
+        document.getElementById('liveExtraBedPrice').innerText = "Rp " + subEx.toLocaleString('id-ID');
+        document.getElementById('liveSubtotal').innerText = "Rp " + totalBill.toLocaleString('id-ID');
+        document.getElementById('liveTotalBill').innerText = "Rp " + totalBill.toLocaleString('id-ID');
+        document.getElementById('livePaid').innerText = "Rp " + deposit.toLocaleString('id-ID');
+        document.getElementById('liveRemainingBill').innerText = "Rp " + sisa.toLocaleString('id-ID');
+    }
+
+    function saveEditBooking() {
+        let selectedRooms = [];
+        document.querySelectorAll('.target-room-cb:checked').forEach(cb => { selectedRooms.push(cb.value); });
+        
+        if (selectedRooms.length === 0) { alert("Silakan pilih minimal satu kamar!"); return; }
+
+        let checkInVal = document.getElementById('editCheckIn').value;
+        let checkOutVal = document.getElementById('editCheckOut').value;
+
+        if (!checkInVal || !checkOutVal) { alert("Tanggal Check-In dan Check-Out wajib diisi!"); return; }
+        if (new Date(checkOutVal) <= new Date(checkInVal)) { alert("Tanggal Check-Out harus setelah Check-In!"); return; }
+
+        let payload = {
+            nama: document.getElementById('editNamaTamu').value.trim() || "Guest",
+            harga: Number(document.getElementById('editHargaKamar').value) || 0,
+            deposit: Number(document.getElementById('editDeposit').value) || 0,
+            extraBedQty: Number(document.getElementById('editExtraBedQty').value) || 0,
+            extraBedPrice: Number(document.getElementById('editExtraBedPrice').value) || 150000,
+            method: document.getElementById('editMethod').value,
+            kontak: document.getElementById('editKontakTamu').value.trim(),
+            email: document.getElementById('editEmailTamu').value.trim(),
+            checkInDate: checkInVal,
+            checkOutDate: checkOutVal,
+            paxAdult: Number(document.getElementById('editPaxAdult').value) || 2,
+            paxChild: Number(document.getElementById('editPaxChild').value) || 0,
+            status: document.getElementById('editOpeStatus').value,
+            notes: document.getElementById('editNotes').value.trim(),
+            bankNama: document.getElementById('editBankNama').value.trim(),
+            bankNomor: document.getElementById('editBankNomor').value.trim(),
+            bankPemilik: document.getElementById('editBankPemilik').value.trim()
+        };
+
+        let oldGuestName = "";
+        if (selectedRoomKey && globalFirebaseData[selectedDateStr]?.[selectedRoomKey]) {
+            oldGuestName = globalFirebaseData[selectedDateStr][selectedRoomKey].nama || "";
+        }
+
+        // Anti Double Booking Validation
+        let startCheck = new Date(payload.checkInDate);
+        let endCheck = new Date(payload.checkOutDate);
+        let isConflict = false;
+        let conflictDetails = "";
+
+        let currentCheck = new Date(startCheck);
+        while (currentCheck < endCheck) {
+            let loopDateStr = `${currentCheck.getFullYear()}-${String(currentCheck.getMonth() + 1).padStart(2, '0')}-${String(currentCheck.getDate()).padStart(2, '0')}`;
+            selectedRooms.forEach(rKey => {
+                let existingBooking = globalFirebaseData[loopDateStr]?.[rKey];
+                if (existingBooking && (existingBooking.status === "booked" || existingBooking.status === "CheckedIn" || existingBooking.status === "hold")) {
+                    let isSelfBooking = (oldGuestName !== "" && existingBooking.nama.toLowerCase() === oldGuestName.toLowerCase());
+                    if (!isSelfBooking) {
+                        isConflict = true;
+                        conflictDetails += `• Kamar ${rKey.replace('room_','')} pada ${loopDateStr} (Tamu: ${existingBooking.nama})\n`;
+                    }
+                }
+            });
+            currentCheck.setDate(currentCheck.getDate() + 1);
+        }
+
+        if (isConflict) {
+            alert(`⚠️ PENDAFTARAN DITOLAK (BENTROK)!\nKamar berikut sudah terisi pada tanggal tersebut:\n\n${conflictDetails}`);
+            return;
+        }
+
+        let promises = [];
+
+        // Hapus data lama jika ada pergeseran nama/tanggal
+        if (oldGuestName !== "") {
+            let cleanDate = new Date(startCheck);
+            while (cleanDate < endCheck) {
+                let loopDateStr = `${cleanDate.getFullYear()}-${String(cleanDate.getMonth() + 1).padStart(2, '0')}-${String(cleanDate.getDate()).padStart(2, '0')}`;
+                for (let r = 1; r <= 8; r++) {
+                    let rK = `room_${r}`;
+                    let checkEx = globalFirebaseData[loopDateStr]?.[rK];
+                    if (checkEx && checkEx.nama.toLowerCase() === oldGuestName.toLowerCase()) {
+                        promises.push(fetch(`${FIREBASE_URL}bookings/${loopDateStr}/${rK}.json`, { method: 'DELETE' }));
+                    }
+                }
+                cleanDate.setDate(cleanDate.getDate() + 1);
+            }
+        }
+
+        // Tulis data reservasi baru di seluruh tanggal menginap
+        let writeDate = new Date(startCheck);
+        while (writeDate < endCheck) {
+            let loopDateStr = `${writeDate.getFullYear()}-${String(writeDate.getMonth() + 1).padStart(2, '0')}-${String(writeDate.getDate()).padStart(2, '0')}`;
+            selectedRooms.forEach(rKey => {
+                promises.push(fetch(`${FIREBASE_URL}bookings/${loopDateStr}/${rKey}.json`, { method: 'PUT', body: JSON.stringify(payload) }));
+            });
+            writeDate.setDate(writeDate.getDate() + 1);
+        }
+
+        Promise.all(promises).then(() => { 
+            alert("Reservasi Berhasil Disimpan & Kunci Kamar Aktif!"); 
+            window.location.href = `index.html?date=${payload.checkInDate}`;
+        });
+    }
+
+    function deleteBooking() {
+        if(!confirm("Hapus pesanan ini?")) return;
+        fetch(`${FIREBASE_URL}bookings/${selectedDateStr}/${selectedRoomKey}.json`, { method: 'DELETE' }).then(() => { 
+            window.location.href = `index.html?date=${selectedDateStr}`;
+        });
+    }
+</script>
+</body>
+</html>

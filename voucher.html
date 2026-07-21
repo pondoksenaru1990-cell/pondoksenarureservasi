@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation Voucher - Pondok Senaru</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2d3748; margin: 0; padding: 25px; background: #f8fafc; }
+        .voucher-box { max-width: 800px; margin: auto; border: 1px solid #cbd5e1; padding: 30px; border-radius: 10px; background: #ffffff; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* KOP HEADER BERBINTANG */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #003580; padding-bottom: 18px; margin-bottom: 20px; }
+        .logo-side h1 { margin: 0; color: #003580; font-size: 2rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+        .logo-side .property-type { margin: 2px 0 6px 0; font-size: 0.85rem; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 1px; }
+        .logo-side .address { margin: 0; font-size: 0.8rem; color: #4a5568; line-height: 1.4; }
+        
+        .voucher-badge { text-align: right; }
+        .voucher-badge h2 { margin: 0; color: #003580; font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .voucher-badge .res-no { margin-top: 4px; font-size: 0.95rem; font-weight: bold; color: #e63946; background: #fff5f5; padding: 4px 8px; border-radius: 4px; border: 1px dashed #feb2b2; display: inline-block; }
+
+        .welcome-text { background: #ebf8ff; border-left: 4px solid #003580; padding: 10px 12px; margin-bottom: 20px; font-size: 0.85rem; color: #2b6cb0; border-radius: 0 6px 6px 0; }
+
+        /* TABEL RINCIAN PEMESANAN */
+        .grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; font-size: 0.88rem; }
+        .detail-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+        .detail-card-title { font-weight: bold; color: #003580; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .info-row label { color: #718096; }
+        .info-row span { font-weight: 600; color: #1a202c; }
+
+        /* TABEL RINCIAN KAMAR & BIAYA */
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.85rem; }
+        .items-table th { background: #003580; color: white; text-align: left; padding: 10px; font-weight: 600; }
+        .items-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+
+        /* RINGKASAN PEMBAYARAN */
+        .billing-summary { background: #f1f5f9; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 0.88rem; }
+        .bill-flex { display: flex; justify-content: space-between; padding: 4px 0; }
+        .bill-flex.total { font-weight: bold; font-size: 1rem; color: #003580; border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 4px; }
+        .bill-flex.paid { color: #2e855a; font-weight: 600; }
+        .bill-flex.due { color: #e63946; font-weight: bold; }
+
+        /* KEBIJAKAN CHECK-IN & CANCEL (HOTEL STANDARD) */
+        .policy-section { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fffaf0; margin-bottom: 20px; font-size: 0.78rem; color: #744210; }
+        .policy-title { font-weight: bold; margin-bottom: 6px; color: #9c4221; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .policy-list { margin-left: 16px; padding: 0; line-height: 1.5; }
+
+        .footer { text-align: center; margin-top: 25px; font-size: 0.78rem; color: #718096; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+
+        /* ACTION BUTTONS & LANGUAGE SWITCH */
+        .no-print { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto 15px auto; }
+        .lang-switch-box { display: flex; gap: 5px; background: #e2e8f0; padding: 4px; border-radius: 6px; }
+        .btn-lang { background: transparent; border: none; padding: 6px 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; border-radius: 4px; color: #4a5568; transition: all 0.2s; }
+        .btn-lang.active { background: #003580; color: white; }
+        
+        .btn-print { background: #febb02; color: #1a202c; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        .btn-print:hover { background: #e0a600; }
+
+        @media print { 
+            body { padding: 0; background: none; } 
+            .voucher-box { border: none; padding: 0; max-width: 100%; box-shadow: none; } 
+            .no-print { display: none; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <!-- Pilihan Switch Bahasa -->
+    <div class="lang-switch-box">
+        <button class="btn-lang active" id="btnLangId" onclick="switchLanguage('id')">🇮🇩 Bahasa Indonesia</button>
+        <button class="btn-lang" id="btnLangEn" onclick="switchLanguage('en')">🇬🇧 English</button>
+    </div>
+    
+    <button class="btn-print" id="lblBtnPrint" onclick="window.print()">𖨨 Cetak Voucher / Save PDF</button>
+</div>
+
+<div class="voucher-box">
+    <div class="header">
+        <div class="logo-side">
+            <h1>Pondok Senaru</h1>
+            <div class="property-type">Cottage & Restaurant</div>
+            <p class="address">
+                Jl. Pariwisata Senaru, Kec. Bayan, Lombok Utara, NTB 83354<br>
+                📞 081803624129 | ✉️ tiwi.pondoksenaru@yahoo.com
+            </p>
+        </div>
+        <div class="voucher-badge">
+            <h2 id="lblVoucherTitle">CONFIRMATION VOUCHER</h2>
+            <div class="res-no" id="vResNo">RES-000000</div>
+        </div>
+    </div>
+
+    <div class="welcome-text" id="lblWelcomeText">
+        <strong>Terima kasih atas pemesanan Anda!</strong> Voucher ini merupakan tanda bukti reservasi resmi. Harap tunjukkan voucher ini saat proses registrasi check-in.
+    </div>
+
+    <div class="grid-details">
+        <div class="detail-card">
+            <div class="detail-card-title" id="lblGuestInfoTitle">👤 Informasi Tamu</div>
+            <div class="info-row"><label id="lblGuestName">Nama Tamu:</label> <span id="vGuestName">-</span></div>
+            <div class="info-row"><label id="lblGuestContact">Kontak/WA:</label> <span id="vGuestContact">-</span></div>
+            <div class="info-row"><label id="lblGuestEmail">Email:</label> <span id="vGuestEmail">-</span></div>
+            <div class="info-row"><label id="lblPayMethod">Metode Bayar:</label> <span id="vPayMethod">-</span></div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-title" id="lblStayInfoTitle">📅 Detail Jadwal Menginap</div>
+            <div class="info-row"><label id="lblCheckIn">Check-In:</label> <span id="vCheckInDate">-</span></div>
+            <div class="info-row"><label id="lblCheckOut">Check-Out:</label> <span id="vCheckOutDate">-</span></div>
+            <div class="info-row"><label id="lblDuration">Durasi:</label> <span id="vDuration">-</span></div>
+            <div class="info-row"><label id="lblPax">Jumlah Tamu:</label> <span id="vPaxInfo">-</span></div>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th id="thAccDetail">Detail Akomodasi</th>
+                <th style="text-align: center;" id="thRoomType">Tipe Kamar</th>
+                <th style="text-align: center;" id="thExBed">Extra Bed</th>
+                <th style="text-align: right;" id="thRateNight">Tarif / Malam</th>
+            </tr>
+        </thead>
+        <tbody id="vRoomItemsBody"></tbody>
+    </table>
+
+    <div class="billing-summary">
+        <div class="bill-flex"><span id="lblSubtotal">Subtotal Pokok Kamar:</span> <span id="vSubtotal">Rp 0</span></div>
+        <div class="bill-flex paid"><span id="lblDepositPaid">Uang Muka / DP Terbayar:</span> <span id="vDepositPaid">Rp 0</span></div>
+        <div class="bill-flex total"><span id="lblTotalBill">Total Biaya Reservasi:</span> <span id="vTotalBill">Rp 0</span></div>
+        <div class="bill-flex due"><span id="lblRemainingDue">Pelunasan Saat Check-In:</span> <span id="vRemainingDue">Rp 0</span></div>
+    </div>
+
+    <div class="policy-section">
+        <div class="policy-title" id="lblPolicyTitle">📋 Kebijakan Check-In & Pembatalan (Hotel Terms & Conditions)</div>
+        <ul class="policy-list" id="lblPolicyList">
+            <!-- Teks kebijakan dimasukkan melalui JS sesuai bahasa aktif -->
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Pondok Senaru Cottage & Restaurant — Senaru, Lombok Utara, Nusa Tenggara Barat</p>
+        <p style="font-size: 0.7rem; margin-top: 3px;" id="lblFooterLegal">Dokumen ini dipublikasikan secara elektronik dan sah tanpa tanda tangan basah.</p>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'id';
+    let globalData = {};
+    let calculatedNights = 1;
+
+    // Kamus Bahasa (Dictionary)
+    const translations = {
+        id: {
+            btnPrint: "𖨨 Cetak Voucher / Save PDF",
+            voucherTitle: "CONFIRMATION VOUCHER",
+            welcomeText: "<strong>Terima kasih atas pemesanan Anda!</strong> Voucher ini merupakan tanda bukti reservasi resmi. Harap tunjukkan voucher ini saat proses registrasi check-in.",
+            guestInfoTitle: "👤 Informasi Tamu",
+            guestName: "Nama Tamu:",
+            guestContact: "Kontak/WA:",
+            guestEmail: "Email:",
+            payMethod: "Metode Bayar:",
+            stayInfoTitle: "📅 Detail Jadwal Menginap",
+            checkIn: "Check-In:",
+            checkOut: "Check-Out:",
+            duration: "Durasi:",
+            pax: "Jumlah Tamu:",
+            thAccDetail: "Detail Akomodasi",
+            thRoomType: "Tipe Kamar",
+            thExBed: "Extra Bed",
+            thRateNight: "Tarif / Malam",
+            subtotal: "Subtotal Pokok Kamar:",
+            depositPaid: "Uang Muka / DP Terbayar:",
+            totalBill: "Total Biaya Reservasi:",
+            remainingDue: "Pelunasan Saat Check-In:",
+            policyTitle: "📋 Kebijakan Check-In & Pembatalan (Hotel Terms & Conditions)",
+            policyList: `
+                <li><strong>Waktu Check-In:</strong> Pukul 14:00 WITA | <strong>Waktu Check-Out:</strong> Pukul 12:00 WITA.</li>
+                <li><strong>Identitas Diri:</strong> Tamu wajib menunjukkan KTP/Paspor yang berlaku saat proses Check-In.</li>
+                <li><strong>Kebijakan Pembatalan (Cancellation):</strong> Pembatalan kurang dari 48 jam sebelum tanggal Check-In tidak dapat mengembalikan deposit (DP) yang telah disetorkan.</li>
+                <li><strong>Perubahan Tanggal (Reschedule):</strong> Perubahan tanggal menginap tergantung pada ketersediaan kamar dan wajib diinformasikan minimal 3 hari sebelumnya.</li>
+                <li><strong>Aturan Umum:</strong> Dilarang membawa hewan peliharaan dan barang berbahaya ke dalam area resort & cottage.</li>
+            `,
+            footerLegal: "Dokumen ini dipublikasikan secara elektronik dan sah tanpa tanda tangan basah.",
+            unitText: "Unit",
+            perNightText: "/ malam",
+            adultText: "Dewasa",
+            childText: "Anak",
+            nightText: "Malam",
+            guestText: "Tamu"
+        },
+        en: {
+            btnPrint: "𖨨 Print Voucher / Save PDF",
+            voucherTitle: "BOOKING CONFIRMATION",
+            welcomeText: "<strong>Thank you for your booking!</strong> This voucher serves as an official confirmation of your reservation. Please present this voucher upon check-in.",
+            guestInfoTitle: "👤 Guest Details",
+            guestName: "Guest Name:",
+            guestContact: "Contact/WA:",
+            guestEmail: "Email:",
+            payMethod: "Payment Method:",
+            stayInfoTitle: "📅 Stay Details",
+            checkIn: "Check-In:",
+            checkOut: "Check-Out:",
+            duration: "Duration:",
+            pax: "Number of Guests:",
+            thAccDetail: "Accommodation Details",
+            thRoomType: "Room Type",
+            thExBed: "Extra Bed",
+            thRateNight: "Rate / Night",
+            subtotal: "Room Subtotal:",
+            depositPaid: "Deposit Paid:",
+            totalBill: "Total Reservation Fee:",
+            remainingDue: "Balance Due at Check-In:",
+            policyTitle: "📋 Check-In & Cancellation Policies",
+            policyList: `
+                <li><strong>Check-In Time:</strong> From 2:00 PM (WITA) | <strong>Check-Out Time:</strong> By 12:00 PM (WITA).</li>
+                <li><strong>Identification:</strong> Guests must present a valid ID card or Passport upon arrival.</li>
+                <li><strong>Cancellation Policy:</strong> Cancellations made less than 48 hours prior to Check-In date are non-refundable for the deposit paid.</li>
+                <li><strong>Rescheduling:</strong> Date changes are subject to room availability and must be requested at least 3 days in advance.</li>
+                <li><strong>General Rules:</strong> Pets and dangerous items are strictly prohibited inside the resort & cottage area.</li>
+            `,
+            footerLegal: "This is a computer-generated document and requires no signature.",
+            unitText: "Unit(s)",
+            perNightText: "/ night",
+            adultText: "Adult(s)",
+            childText: "Child(ren)",
+            nightText: "Night(s)",
+            guestText: "Guest(s)"
+        }
+    };
+
+    window.onload = function() {
+        const rawData = localStorage.getItem('voucherPondokSenaru');
+        if (!rawData) {
+            alert("Data voucher tidak ditemukan!");
+            return;
+        }
+        globalData = JSON.parse(rawData);
+
+        // Hitung Durasi Menginap
+        if (globalData.checkIn && globalData.checkOut) {
+            const d1 = new Date(globalData.checkIn);
+            const d2 = new Date(globalData.checkOut);
+            const diff = d2.getTime() - d1.getTime();
+            calculatedNights = Math.ceil(diff / (1000 * 3600 * 24)) || 1;
+        }
+
+        // Tampilkan Data Dinamis
+        renderVoucherData();
+        // Terapkan Bahasa Default (ID)
+        switchLanguage('id');
+    };
+
+    function renderVoucherData() {
+        const lang = translations[currentLang];
+
+        document.getElementById('vResNo').innerText = globalData.nomor_res || globalData.no_reservasi || "RES-" + Date.now().toString().slice(-6);
+        document.getElementById('vGuestName').innerText = globalData.nama_tamu || globalData.nama || "Guest";
+        document.getElementById('vGuestContact').innerText = globalData.whatsapp || globalData.telepon || globalData.phone || "-";
+        document.getElementById('vGuestEmail').innerText = globalData.email || "-";
+        document.getElementById('vPayMethod').innerText = globalData.metode_bayar || globalData.pembayaran || "Cash";
+
+        document.getElementById('vCheckInDate').innerText = (globalData.checkIn || globalData.checkin || "-") + " (14:00 WITA)";
+        document.getElementById('vCheckOutDate').innerText = (globalData.checkOut || globalData.checkout || "-") + " (12:00 WITA)";
+        document.getElementById('vDuration').innerText = `${calculatedNights} ${lang.nightText}`;
+
+        // 1. Render Item Kamar & Hitung Subtotal Murni seluruh kamar x durasi menginap
+        const tbody = document.getElementById('vRoomItemsBody');
+        tbody.innerHTML = "";
+        let totalSubtotalKamar = 0;
+        let totalKamarCount = 0;
+
+        if (globalData.items && globalData.items.length > 0) {
+            totalKamarCount = globalData.items.length;
+            globalData.items.forEach(item => {
+                let subKamar = Number(item.harga_kamar || item.harga) || 0;
+                let totalKamar = subKamar * calculatedNights;
+                totalSubtotalKamar += totalKamar;
+
+                let exbedQty = Number(item.exbed_qty || item.extra_bed) || 0;
+                let exbedStr = exbedQty > 0 ? `${exbedQty} ${lang.unitText}` : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${item.nama_kamar || item.kamar}</b></td>
+                        <td style="text-align: center;">${item.tipe_kamar || item.tipe || '-'}</td>
+                        <td style="text-align: center;">${exbedStr}</td>
+                        <td style="text-align: right; font-weight:600;">Rp ${subKamar.toLocaleString('id-ID')} ${lang.perNightText}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            totalKamarCount = 1;
+        }
+
+        // 2. SINKRONISASI JUMLAH TAMU (Otomatis menyesuaikan jumlah kamar jika terdeteksi 2 dewasa)
+        let adult = globalData.paxAdult ?? globalData.pax_dewasa ?? globalData.dewasa ?? globalData.adult ?? null;
+        let child = globalData.paxChild ?? globalData.pax_anak ?? globalData.anak ?? globalData.child ?? 0;
+
+        if (adult !== null) {
+            if (totalKamarCount > 1 && adult <= 2) {
+                adult = adult * totalKamarCount; // 2 Dewasa x 2 Kamar = 4 Dewasa
+            }
+        } else {
+            adult = totalKamarCount * 2;
+        }
+
+        document.getElementById('vPaxInfo').innerText = `${adult} ${lang.adultText}, ${child} ${lang.childText}`;
+
+        // 3. SINKRONISASI KEUANGAN (Total Biaya = Subtotal Seluruh Kamar)
+        let depositPaid = Number(globalData.deposit_harga || globalData.dp || globalData.deposit) || 0;
+        let finalTotal = totalSubtotalKamar; // Memakai total murni akumulasi kamar x malam (Rp 2.700.000)
+        let sisa = Math.max(0, finalTotal - depositPaid);
+
+        document.getElementById('vSubtotal').innerText = "Rp " + totalSubtotalKamar.toLocaleString('id-ID');
+        document.getElementById('vDepositPaid').innerText = "- Rp " + depositPaid.toLocaleString('id-ID');
+        document.getElementById('vTotalBill').innerText = "Rp " + finalTotal.toLocaleString('id-ID');
+        document.getElementById('vRemainingDue').innerText = "Rp " + sisa.toLocaleString('id-ID');
+    }
+
+    function switchLanguage(langKey) {
+        currentLang = langKey;
+        const lang = translations[langKey];
+
+        // Update Aktif Tombol
+        document.getElementById('btnLangId').classList.toggle('active', langKey === 'id');
+        document.getElementById('btnLangEn').classList.toggle('active', langKey === 'en');
+
+        // Update Label Halaman
+        document.getElementById('lblBtnPrint').innerText = lang.btnPrint;
+        document.getElementById('lblVoucherTitle').innerText = lang.voucherTitle;
+        document.getElementById('lblWelcomeText').innerHTML = lang.welcomeText;
+        document.getElementById('lblGuestInfoTitle').innerText = lang.guestInfoTitle;
+        document.getElementById('lblGuestName').innerText = lang.guestName;
+        document.getElementById('lblGuestContact').innerText = lang.guestContact;
+        document.getElementById('lblGuestEmail').innerText = lang.guestEmail;
+        document.getElementById('lblPayMethod').innerText = lang.payMethod;
+        document.getElementById('lblStayInfoTitle').innerText = lang.stayInfoTitle;
+        document.getElementById('lblCheckIn').innerText = lang.checkIn;
+        document.getElementById('lblCheckOut').innerText = lang.checkOut;
+        document.getElementById('lblDuration').innerText = lang.duration;
+        document.getElementById('lblPax').innerText = lang.pax;
+
+        document.getElementById('thAccDetail').innerText = lang.thAccDetail;
+        document.getElementById('thRoomType').innerText = lang.thRoomType;
+        document.getElementById('thExBed').innerText = lang.thExBed;
+        document.getElementById('thRateNight').innerText = lang.thRateNight;
+
+        document.getElementById('lblSubtotal').innerText = lang.subtotal;
+        document.getElementById('lblDepositPaid').innerText = lang.depositPaid;
+        document.getElementById('lblTotalBill').innerText = lang.totalBill;
+        document.getElementById('lblRemainingDue').innerText = lang.remainingDue;
+
+        document.getElementById('lblPolicyTitle').innerText = lang.policyTitle;
+        document.getElementById('lblPolicyList').innerHTML = lang.policyList;
+        document.getElementById('lblFooterLegal').innerText = lang.footerLegal;
+
+        // Render ulang data variabel yang bergantung pada string bahasa
+        renderVoucherData();
+    }
+</script>
+</body>
+</html>

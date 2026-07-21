@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clean Booking Calendar - Pondok Senaru</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#003580">
+    <meta name="apple-mobile-web-app-title" content="Pondok Senaru">
+    <link class="apple-touch-icon" href="icon-192.png">
+
+    <!-- Memasukkan Pustaka SheetJS untuk Export Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #003580;
+            --accent-color: #febb02;
+            --bg-body: #f4f6f9;
+            --text-main: #1a202c;
+            --border-color: #cbd5e1;
+            --available-color: #2ec4b6;
+            --booked-color: #e63946;
+            --hold-color: #dd6b20;
+            --inhouse-color: #3182ce;
+            --dirty-color: #e53e3e;
+            --success-color: #2ea44f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+            background-color: var(--bg-body); 
+            padding: 10px; 
+            color: var(--text-main); 
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+            width: 100%;
+        }
+        
+        .app-header {
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .app-title h1 { margin: 0; font-size: 1.4rem; color: var(--primary-color); font-weight: 700; }
+        .app-title p { margin: 3px 0 0 0; font-size: 0.8rem; color: #718096; }
+
+        .control-panel { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+        .selector-box {
+            flex: 1; min-width: 100px; padding: 8px; font-weight: 600; border-radius: 6px;
+            border: 2px solid #e2e8f0; background: white; color: var(--text-main); cursor: pointer; outline: none; font-size: 0.85rem;
+        }
+        
+        .btn-action-top {
+            flex: 1; white-space: nowrap; justify-content: center; padding: 8px 12px; font-weight: bold;
+            border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;
+        }
+        .btn-today { background: #edf2f7; color: var(--primary-color); border: 1px solid #cbd5e1; }
+        .btn-excel { background: #107c41; color: white; }
+
+        .calendar-wrapper {
+            background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            overflow: hidden; border: 1px solid var(--border-color); margin-bottom: 15px; width: 100%;
+        }
+        .calendar-nav-bar { display: flex; justify-content: space-between; align-items: center; background: var(--primary-color); color: white; padding: 12px; }
+        .calendar-nav-bar h2 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+        .btn-nav-arrow { background: rgba(255,255,255,0.15); color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        
+        .weekdays-grid { 
+            display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; 
+            background: #f8fafc; color: #4a5568; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.7rem; 
+        }
+        
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--border-color); gap: 1px; }
+        
+        .day-cell { 
+            background: white; min-height: 58px; padding: 4px; display: flex; flex-direction: column; 
+            justify-content: space-between; cursor: pointer; transition: background 0.2s; overflow: hidden;
+        }
+        .day-cell:hover { background: #f0f4f8; }
+        .day-cell.empty { background: #f1f5f9; cursor: default; }
+        .day-cell.today-highlight { background: #fffbeb; border: 2px solid var(--accent-color) !important; }
+        .day-cell.focus-highlight { background: #e2e8f0; border: 2px solid var(--primary-color) !important; }
+        
+        .day-number { font-weight: 700; font-size: 0.85rem; color: #4a5568; }
+        
+        .day-status-summary { font-size: 0.58rem; font-weight: 700; padding: 2px 1px; border-radius: 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .status-all-empty { color: #00a389; background: #e6fffa; }
+        .status-some-booked { color: #c53030; background: #fff5f5; }
+        .status-some-hold { color: #c05621; background: #feebc8; }
+
+        .dashboard-detail-panel, .room-grid-panel {
+            background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px;
+        }
+
+        .panel-header-title { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+        
+        .section-group-header { 
+            background: #ebf4ff; color: var(--primary-color); padding: 10px; font-weight: bold; font-size: 0.85rem; 
+            border-radius: 6px; margin-top: 5px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; 
+        }
+        
+        .btn-print-group-selected { background: #dd6b20; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
+        .btn-print-group-selected:hover { background: #c05621; }
+
+        .btn-deposit-group-selected { background: #2563eb; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
+        .btn-deposit-group-selected:hover { background: #1d4ed8; }
+
+        .btn-voucher-group-selected { background: #003580; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
+        .btn-voucher-group-selected:hover { background: #002254; }
+
+        .action-group-buttons { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
+        .btn-delete-group-selected { background: #e63946; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex: 1; text-align: center; }
+        .btn-delete-group-selected:hover { background: #c53030; }
+        
+        .btn-input-group-selected { background: #2ea44f; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex: 1; text-align: center; }
+        .btn-input-group-selected:hover { background: #22863a; }
+
+        .booking-card-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .card-checkbox-area { display: flex; align-items: center; justify-content: center; }
+        .card-checkbox-area input[type="checkbox"] { transform: scale(1.1); cursor: pointer; }
+        
+        .card-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .card-guest-name { font-size: 0.95rem; font-weight: 700; color: #1a202c; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .card-meta-text { font-size: 0.8rem; color: #4a5568; }
+        .card-notes { font-size: 0.78rem; color: #2d3748; background: #fffaf0; padding: 6px 10px; border-left: 3px solid #dd6b20; margin-top: 4px; border-radius: 4px; }
+        
+        .card-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 120px; }
+        .badge-finance { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; width: 100%; }
+        .badge-lunas { background: #e6fffa; color: #00a389; border: 1px solid #b2f5ea; }
+        .badge-piutang { background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; }
+        .badge-hold { background: #feebc8; color: #c05621; border: 1px solid #fbd38d; }
+
+        .status-pill { font-size: 0.68rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .pill-booked { background: #fed7d7; color: #9b2c2c; }
+        .pill-hold { background: #feebc8; color: #9c4221; }
+        .pill-inhouse { background: #bee3f8; color: #2b6cb0; }
+        .pill-dirty { background: #e2e8f0; color: #4a5568; }
+
+        .room-selection-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px; }
+        .room-select-card { padding: 12px; border-radius: 8px; border: 2px solid #e2e8f0; cursor: pointer; display: flex; flex-direction: column; gap: 4px; font-weight: bold; font-size: 0.85rem; transition: all 0.2s; }
+        .room-select-card.status-kosong { border-color: #b2f5ea; background: #e6fffa; color: #00a389; }
+        .room-select-card.status-terisi { border-color: #fed7d7; background: #fff5f5; color: #c53030; }
+        .room-select-card.status-hold { border-color: #fbd38d; background: #fffaf0; color: #c05621; }
+        .room-select-card.status-inhouse { border-color: #bee3f8; background: #ebf8ff; color: #2b6cb0; }
+
+        @media (min-width: 600px) {
+            body { padding: 20px; max-width: 1200px; margin: 0 auto; }
+            .control-panel { width: auto; }
+            .btn-action-top { width: auto; flex: none; }
+            .weekdays-grid { font-size: 0.75rem; }
+            .day-cell { min-height: 90px; padding: 8px; }
+            .day-number { font-size: 1.1rem; }
+            .day-status-summary { font-size: 0.75rem; padding: 4px 6px; }
+            .room-selection-list { grid-template-columns: repeat(4, 1fr); }
+            .room-select-card { flex-direction: row; justify-content: space-between; align-items: center; }
+            .section-group-header { flex-direction: row; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div class="app-title">
+        <h1>Pondok Senaru Board</h1>
+        <p>Sistem Kalender Kamar & Manajemen Reservasi Terpadu</p>
+    </div>
+    
+    <div class="control-panel">
+        <select id="quickMonth" class="selector-box" onchange="jumpToSelectedDate()"></select>
+        <select id="quickYear" class="selector-box" onchange="jumpToSelectedDate()">
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+        </select>
+        <button class="btn-action-top btn-today" onclick="goToToday()">📍 Hari Ini</button>
+        <button class="btn-action-top btn-excel" onclick="exportToExcelByMonth()">📥 Download Excel</button>
+        <a href="housekeeping.html" class="btn-action-top" style="background: #64748b; color: white; text-decoration: none;">🧹 Housekeeping</a>
+        <a href="restaurant.html" class="btn-action-top" style="background: #d97706; color: white; text-decoration: none;">🍽️ Restoran</a>
+    </div>
+</div>
+
+<div class="calendar-wrapper">
+    <div class="calendar-nav-bar">
+        <button class="btn-nav-arrow" onclick="changeMonth(-1)">◀</button>
+        <h2 id="calendarTitle">Loading...</h2>
+        <button class="btn-nav-arrow" onclick="changeMonth(1)">▶</button>
+    </div>
+
+    <div class="weekdays-grid">
+        <div>MIN</div><div>SEN</div><div>SEL</div><div>RAB</div><div>KAM</div><div>JUM</div><div>SAB</div>
+    </div>
+    <div class="calendar-grid" id="calendarGridBody"></div>
+</div>
+
+<div class="dashboard-detail-panel" id="targetPanelDetail">
+    <h2 class="panel-header-title" id="panelDateTitle">Silakan Pilih Tanggal Pada Kalender</h2>
+    <div id="appStyleReservationContainer"></div>
+</div>
+
+<div class="room-grid-panel">
+    <div class="section-group-header" style="background:#f1f5f9; color:#4a5568; padding: 12px; font-size: 0.95rem;">
+         <span>🎛️ Manajer Grid Status Kamar Langsung</span>
+    </div>
+    <div class="room-selection-list" id="roomSelectorContainer"></div>
+</div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js');
+        });
+    }
+
+    const FIREBASE_URL = "https://kalender-8a7b2-default-rtdb.firebaseio.com/";
+    let globalFirebaseData = {};
+    let currentFocusDate = new Date();
+    let selectedDateStr = "";
+    const indonesianMonths = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    const roomDetailsMapping = {
+        "room_1": { name: "Kamar 1", type: "Standard Twin Bed" },
+        "room_2": { name: "Kamar 2", type: "Standard Twin Bed" },
+        "room_3": { name: "Kamar 3", type: "Standard Twin Bed" },
+        "room_4": { name: "Kamar 4", type: "Standard Twin Bed" },
+        "room_5": { name: "Kamar 5", type: "Standard Twin Bed" },
+        "room_6": { name: "Kamar 6", type: "Standard Twin Bed" },
+        "room_7": { name: "Kamar 7", type: "Superior Double Bed" },
+        "room_8": { name: "Kamar 8", type: "Superior Double Bed" }
+    };
+
+    window.onload = function() {
+        initDropdowns();
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramDate = urlParams.get('date');
+        if(paramDate) {
+            currentFocusDate = new Date(paramDate);
+            updateDropdownSelectors();
+            fetchDataAndSelect(paramDate);
+        } else {
+            goToToday();
+        }
+    };
+
+    function initDropdowns() {
+        const mSelect = document.getElementById('quickMonth');
+        mSelect.innerHTML = "";
+        indonesianMonths.forEach((m, idx) => { mSelect.innerHTML += `<option value="${idx}">${m}</option>`; });
+        updateDropdownSelectors();
+    }
+
+    function updateDropdownSelectors() {
+        document.getElementById('quickMonth').value = currentFocusDate.getMonth();
+        document.getElementById('quickYear').value = currentFocusDate.getFullYear();
+    }
+
+    function jumpToSelectedDate() {
+        const m = parseInt(document.getElementById('quickMonth').value);
+        const y = parseInt(document.getElementById('quickYear').value);
+        currentFocusDate.setFullYear(y, m, 1);
+        syncData();
+    }
+
+    function goToToday() {
+        currentFocusDate = new Date();
+        updateDropdownSelectors();
+        let tStr = `${currentFocusDate.getFullYear()}-${String(currentFocusDate.getMonth() + 1).padStart(2, '0')}-${String(currentFocusDate.getDate()).padStart(2, '0')}`;
+        fetchDataAndSelect(tStr);
+    }
+
+    function fetchDataAndSelect(targetDate) {
+        fetch(`${FIREBASE_URL}bookings.json`)
+        .then(res => res.json())
+        .then(data => {
+            globalFirebaseData = data || {};
+            localStorage.setItem('cachedFirebaseBookings', JSON.stringify(globalFirebaseData));
+            buildCleanCalendar();
+            selectDateRow(targetDate);
+        })
+        .catch(err => {
+            console.warn("Koneksi gagal/offline. Mengalihkan ke data lokal...");
+            let localCache = localStorage.getItem('cachedFirebaseBookings');
+            globalFirebaseData = localCache ? JSON.parse(localCache) : {};
+            buildCleanCalendar();
+            selectDateRow(targetDate);
+        });
+    }
+
+    function syncData() {
+        fetch(`${FIREBASE_URL}bookings.json`)
+        .then(res => res.json())
+        .then(data => {
+            globalFirebaseData = data || {};
+            localStorage.setItem('cachedFirebaseBookings', JSON.stringify(globalFirebaseData));
+            buildCleanCalendar();
+            if(selectedDateStr) { selectDateRow(selectedDateStr); }
+        })
+        .catch(err => {
+            console.warn("Gagal sinkronisasi karena offline.");
+            let localCache = localStorage.getItem('cachedFirebaseBookings');
+            globalFirebaseData = localCache ? JSON.parse(localCache) : {};
+            buildCleanCalendar();
+            if(selectedDateStr) { selectDateRow(selectedDateStr); }
+        });
+    }
+
+    function buildCleanCalendar() {
+        let year = currentFocusDate.getFullYear();
+        let month = currentFocusDate.getMonth();
+        document.getElementById("calendarTitle").innerText = `${indonesianMonths[month]} ${year}`;
+        
+        let gridContainer = document.getElementById("calendarGridBody");
+        gridContainer.innerHTML = "";
+
+        let firstDayIndex = new Date(year, month, 1).getDay();
+        let totalDays = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            gridContainer.innerHTML += `<div class="day-cell empty"></div>`;
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+            let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            let isToday = (dateStr === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`) ? "today-highlight" : "";
+            let isFocused = (dateStr === selectedDateStr) ? "focus-highlight" : "";
+
+            let bookedCount = 0;
+            let holdCount = 0;
+            if (globalFirebaseData[dateStr]) {
+                for (let r = 1; r <= 8; r++) {
+                    let st = globalFirebaseData[dateStr][`room_${r}`]?.status;
+                    if (st === "booked" || st === "CheckedIn") bookedCount++;
+                    else if (st === "hold") holdCount++;
+                }
+            }
+
+            let statusHTML = `<div class="day-status-summary status-all-empty">🟢 Kosong</div>`;
+            if (bookedCount > 0) {
+                statusHTML = `<div class="day-status-summary status-some-booked">🔒 ${bookedCount} Kmr</div>`;
+            } else if (holdCount > 0) {
+                statusHTML = `<div class="day-status-summary status-some-hold">⏳ ${holdCount} Hold</div>`;
+            }
+
+            gridContainer.innerHTML += `
+                <div class="day-cell ${isToday} ${isFocused}" id="cell_${dateStr}" onclick="selectDateRow('${dateStr}')">
+                    <div class="day-number">${day}</div>
+                    ${statusHTML}
+                </div>`;
+        }
+    }
+
+    function changeMonth(dir) {
+        currentFocusDate.setMonth(currentFocusDate.getMonth() + dir);
+        syncData();
+    }
+
+    function selectDateRow(dateStr) {
+        selectedDateStr = dateStr;
+        document.querySelectorAll('.day-cell').forEach(el => el.classList.remove('focus-highlight'));
+        const activeCell = document.getElementById(`cell_${dateStr}`);
+        if(activeCell) activeCell.classList.add('focus-highlight');
+
+        let parts = dateStr.split('-');
+        let formattedDate = `${parts[2]} ${indonesianMonths[parts[1]-1]} ${parts[0]}`;
+        document.getElementById('panelDateTitle').innerText = `📅 Agenda: ${formattedDate}`;
+        
+        renderAppStyleReservations(dateStr);
+        renderRoomSelectorList();
+    }
+
+    function renderAppStyleReservations(dateStr) {
+        const listContainer = document.getElementById('appStyleReservationContainer');
+        listContainer.innerHTML = "";
+        let itemsList = [];
+
+        if (globalFirebaseData[dateStr]) {
+            for (let r = 1; r <= 8; r++) {
+                let rKey = `room_${r}`;
+                let b = globalFirebaseData[dateStr][rKey];
+                if (b && (b.status === "booked" || b.status === "hold" || b.status === "CheckedIn" || b.status === "CheckedOut")) {
+                    itemsList.push({ roomKey: rKey, data: b, roomNum: r });
+                }
+            }
+        }
+
+        let htmlContent = "";
+        if(itemsList.length > 0) {
+            htmlContent += `
+                <div class="section-group-header">
+                    <span>📑 Tamu Menginap / Reservasi Terdaftar</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="btn-print-group-selected" onclick="printManualSelectedInvoice('${dateStr}')">📙 Cetak Invoice Pelunas</button>
+                        <button class="btn-deposit-group-selected" onclick="printDepositInvoiceSelected('${dateStr}')">🏦 Cetak Deposit Invoice (Rachmawati)</button>
+                        <button class="btn-voucher-group-selected" onclick="printManualSelectedVoucher('${dateStr}')">🎟️ Cetak Voucher Terpilih</button>
+                    </div>
+                    <div class="action-group-buttons">
+                        <button class="btn-delete-group-selected" onclick="deleteManualSelectedBookings('${dateStr}')">🗑️ Hapus Kamar Terpilih</button>
+                        <button class="btn-input-group-selected" onclick="openFormNew('${dateStr}')">➕ Input Reservasi Baru</button>
+                    </div>
+                </div>
+            `;
+            
+            itemsList.forEach(item => {
+                let b = item.data;
+                let rKey = item.roomKey;
+                let infoKamar = roomDetailsMapping[rKey];
+                
+                let hargaPokok = Number(b.harga) || 0;
+                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 0);
+                let totalBill = hargaPokok + subExbed;
+                let depositPaid = Number(b.deposit) || 0;
+                let sisaUtang = b.method === "Invoice / Agent" ? totalBill : Math.max(0, totalBill - depositPaid);
+                
+                let statusBadge = "";
+                if (b.status === "hold") {
+                    statusBadge = `<div class="badge-finance badge-hold"><span style="font-weight:bold;">⏳ HOLD (PENDING DP)</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>`;
+                } else {
+                    statusBadge = sisaUtang > 0 ? 
+                        `<div class="badge-finance badge-piutang"><span style="color:#c53030; font-weight:bold;">UTANG: Rp ${sisaUtang.toLocaleString('id-ID')}</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>` : 
+                        `<div class="badge-finance badge-lunas"><span style="color:#00a389; font-weight:bold;">LUNAS (Rp ${depositPaid.toLocaleString('id-ID')})</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>`;
+                }
+                
+                let displayNotes = b.notes && b.notes !== "null" ? `<div class="card-notes"><b>📌 Catatan:</b> ${b.notes}</div>` : "";
+
+                let statusPill = "";
+                if (b.status === "CheckedIn") statusPill = `<span class="status-pill pill-inhouse">🔵 In-House</span>`;
+                else if (b.status === "CheckedOut") statusPill = `<span class="status-pill pill-dirty">🔴 Dirty / Check-Out</span>`;
+                else if (b.status === "hold") statusPill = `<span class="status-pill pill-hold">⏳ Hold</span>`;
+                else statusPill = `<span class="status-pill pill-booked">🔒 Reserved</span>`;
+
+                htmlContent += `
+                    <div class="booking-card-item" onclick="openFormEdit('${dateStr}', '${rKey}')">
+                        <div class="card-checkbox-area" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="manual-inv-select" value="${rKey}">
+                        </div>
+                        <div class="card-left">
+                            <div class="card-guest-name">
+                                ${b.nama} ${statusPill}
+                                <span style="font-size:1rem; color:#003580; font-weight:800; background:#eBF4FF; padding:2px 6px; border-radius:4px; margin-left:6px; border:1px solid #bee3f8;">
+                                    🏷️ ${infoKamar.name}
+                                </span>
+                            </div>
+                            <div class="card-meta-text">📅 ${b.checkInDate || dateStr} s/d ${b.checkOutDate || dateStr}</div>
+                            ${displayNotes}
+                        </div>
+                        <div class="card-right">
+                            ${statusBadge}
+                            <div style="font-size:0.75rem; color:#4a5568; font-weight:600; margin-top:2px;">💳 ${b.method || 'Cash'}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            htmlContent = `
+                <div style="text-align:center; padding:20px; color:#a0aec0; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1; font-size:0.85rem; margin-bottom:10px;">
+                    Belum ada pesanan masuk pada tanggal ini.
+                </div>
+                <div style="display:flex; justify-content:center;">
+                    <button class="btn-input-group-selected" style="max-width:300px;" onclick="openFormNew('${dateStr}')">➕ Input Reservasi Baru</button>
+                </div>
+            `;
+        }
+        listContainer.innerHTML = htmlContent;
+    }
+
+    function renderRoomSelectorList() {
+        const container = document.getElementById('roomSelectorContainer');
+        container.innerHTML = "";
+        for (let r = 1; r <= 8; r++) {
+            let rKey = `room_${r}`;
+            let roomData = globalFirebaseData[selectedDateStr]?.[rKey];
+            let cardClass = "status-kosong";
+            let labelStatus = "🟢 Kosong";
+
+            if (roomData) {
+                if (roomData.status === "booked") { cardClass = "status-terisi"; labelStatus = `🔒 ${roomData.nama}`; }
+                else if (roomData.status === "hold") { cardClass = "status-hold"; labelStatus = `⏳ Hold: ${roomData.nama}`; }
+                else if (roomData.status === "CheckedIn") { cardClass = "status-inhouse"; labelStatus = `🔵 ${roomData.nama}`; }
+                else if (roomData.status === "CheckedOut") { cardClass = "status-terisi"; labelStatus = `🔴 Dirty (${roomData.nama})`; }
+            }
+
+            container.innerHTML += `
+                <div class="room-select-card ${cardClass}" onclick="openFormEdit('${selectedDateStr}', '${rKey}')">
+                    <span>Kamar ${r}</span>
+                    <span style="font-size:0.75rem; font-weight:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${labelStatus}</span>
+                </div>`;
+        }
+    }
+
+    function openFormNew(dateStr) {
+        window.location.href = `form.html?date=${dateStr}`;
+    }
+
+    function openFormEdit(dateStr, roomKey) {
+        window.location.href = `form.html?date=${dateStr}&room=${roomKey}&mode=edit`;
+    }
+
+    document.addEventListener('click', function(e) {
+        if(e.target && e.target.classList.contains('manual-inv-select')) {
+            e.stopPropagation();
+        }
+    });
+
+    // 1. FUNGSI CETAK INVOICE STANDAR / PELUNASAN (KE INVOICE.HTML)
+    function printManualSelectedInvoice(dateStr) {
+        let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
+        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak!"); return; }
+
+        let listKamarGabungan = [];
+        let totalSemuaKamar = 0, totalSemuaDeposit = 0, baseBooking = null;
+
+        checkboxes.forEach(cb => {
+            let rKey = cb.value;
+            let b = globalFirebaseData[dateStr][rKey];
+            if (b) {
+                if (!baseBooking) baseBooking = b;
+                let subKamar = Number(b.harga) || 0;
+                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 150000);
+                let totalKamarIni = subKamar + subExbed;
+                totalSemuaKamar += totalKamarIni;
+
+                let depositKamarIni = Number(b.deposit) || 0;
+                totalSemuaDeposit += depositKamarIni;
+
+                listKamarGabungan.push({
+                    nama_kamar: roomDetailsMapping[rKey].name,
+                    tipe_kamar: roomDetailsMapping[rKey].type,
+                    harga_kamar: subKamar,
+                    exbed_qty: Number(b.extraBedQty) || 0,
+                    exbed_price: subExbed,
+                    total_kamar: totalKamarIni
+                });
+            }
+        });
+
+        const dataInvoice = {
+            bookingId: Date.now().toString().slice(-6),
+            nama_tamu: baseBooking.nama || "Guest",
+            whatsapp: baseBooking.kontak || "-",
+            email: baseBooking.email || "-",
+            checkIn: baseBooking.checkInDate || dateStr,
+            checkOut: baseBooking.checkOutDate || dateStr,
+            paxAdult: baseBooking.paxAdult || 2,
+            items: listKamarGabungan,
+            total_harga: totalSemuaKamar, 
+            deposit_harga: totalSemuaDeposit
+        };
+
+        localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataInvoice));
+        window.open('invoice.html', '_blank');
+    }
+
+    // 2. FUNGSI CETAK DEPOSIT INVOICE (KE DEPOSIT-INVOICE.HTML)
+    function printDepositInvoiceSelected(dateStr) {
+        let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
+        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak deposit invoicenya!"); return; }
+
+        let listKamarGabungan = [];
+        let totalSemuaKamar = 0, totalSemuaDeposit = 0, baseBooking = null;
+
+        checkboxes.forEach(cb => {
+            let rKey = cb.value;
+            let b = globalFirebaseData[dateStr][rKey];
+            if (b) {
+                if (!baseBooking) baseBooking = b;
+                let subKamar = Number(b.harga) || 0;
+                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 150000);
+                let totalKamarIni = subKamar + subExbed;
+                totalSemuaKamar += totalKamarIni;
+
+                let depositKamarIni = Number(b.deposit) || 0;
+                totalSemuaDeposit += depositKamarIni;
+
+                listKamarGabungan.push({
+                    nama_kamar: roomDetailsMapping[rKey].name,
+                    tipe_kamar: roomDetailsMapping[rKey].type,
+                    harga_kamar: subKamar,
+                    exbed_qty: Number(b.extraBedQty) || 0,
+                    exbed_price: subExbed,
+                    total_kamar: totalKamarIni
+                });
+            }
+        });
+
+        const dataInvoice = {
+            bookingId: Date.now().toString().slice(-6),
+            nama_tamu: baseBooking.nama || "Guest",
+            whatsapp: baseBooking.kontak || "-",
+            email: baseBooking.email || "-",
+            checkIn: baseBooking.checkInDate || dateStr,
+            checkOut: baseBooking.checkOutDate || dateStr,
+            paxAdult: baseBooking.paxAdult || 2,
+            items: listKamarGabungan,
+            total_harga: totalSemuaKamar, 
+            deposit_harga: totalSemuaDeposit
+        };
+
+        localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataInvoice));
+        window.open('deposit-invoice.html', '_blank');
+    }
+
+    // 3. FUNGSI CETAK VOUCHER (KE VOUCHER.HTML)
+    function printManualSelectedVoucher(dateStr) {
+        let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
+        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak vouchernya!"); return; }
+
+        let listKamarGabungan = [];
+        let totalSemuaKamar = 0, totalSemuaDeposit = 0, baseBooking = null;
+
+        checkboxes.forEach(cb => {
+            let rKey = cb.value;
+            let b = globalFirebaseData[dateStr][rKey];
+            if (b) {
+                if (!baseBooking) baseBooking = b;
+                let subKamar = Number(b.harga) || 0;
+                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 150000);
+                let totalKamarIni = subKamar + subExbed;
+                totalSemuaKamar += totalKamarIni;
+
+                let depositKamarIni = Number(b.deposit) || 0;
+                totalSemuaDeposit += depositKamarIni;
+
+                listKamarGabungan.push({
+                    nama_kamar: roomDetailsMapping[rKey].name,
+                    tipe_kamar: roomDetailsMapping[rKey].type,
+                    harga_kamar: subKamar,
+                    exbed_qty: Number(b.extraBedQty) || 0
+                });
+            }
+        });
+
+        const dataVoucher = {
+            nomor_res: "RES-" + Date.now().toString().slice(-6),
+            nama_tamu: baseBooking.nama || "Guest",
+            whatsapp: baseBooking.kontak || "-",
+            email: baseBooking.email || "-",
+            checkIn: baseBooking.checkInDate || dateStr,
+            checkOut: baseBooking.checkOutDate || dateStr,
+            paxAdult: baseBooking.paxAdult || 2,
+            paxChild: baseBooking.paxChild || 0,
+            metode_bayar: baseBooking.method || "Cash",
+            items: listKamarGabungan,
+            total_harga: totalSemuaKamar,
+            deposit_harga: totalSemuaDeposit
+        };
+
+        localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataVoucher));
+        window.open('voucher.html', '_blank');
+    }
+
+    function deleteManualSelectedBookings(dateStr) {
+        let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
+        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu reservasi kamar!"); return; }
+        if (!confirm(`Hapus permanen ${checkboxes.length} reservasi kamar terpilih?`)) return;
+
+        let promises = [];
+        checkboxes.forEach(cb => {
+            promises.push(fetch(`${FIREBASE_URL}bookings/${dateStr}/${cb.value}.json`, { method: 'DELETE' }));
+        });
+
+        Promise.all(promises).then(() => {
+            alert("Reservasi terpilih berhasil dihapus!");
+            syncData();
+        });
+    }
+
+    function exportToExcelByMonth() {
+        let year = currentFocusDate.getFullYear();
+        let month = currentFocusDate.getMonth();
+        let monthName = indonesianMonths[month];
+        
+        let rowsData = [];
+        let totalDays = new Date(year, month + 1, 0).getDate();
+        
+        let summary = {
+            cashPokok: 0, cashDP: 0,
+            edcPokok: 0, edcDP: 0,
+            agentPokok: 0, agentDP: 0
+        };
+
+        for (let d = 1; d <= totalDays; d++) {
+            let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+            for (let r = 1; r <= 8; r++) {
+                let rKey = `room_${r}`;
+                let namaKamarSistem = roomDetailsMapping[rKey].name;
+                let b = globalFirebaseData[dateStr]?.[rKey];
+                
+                if (b && (b.status === "booked" || b.status === "hold" || b.status === "CheckedIn")) {
+                    let hargaKamarBase = Number(b.harga) || 0;
+                    let extraBedTotal = (Number(b.extraBedQty) || 0) * 150000;
+                    let totalPokok = hargaKamarBase + extraBedTotal; 
+                    let deposit = Number(b.deposit) || 0;
+                    let sisaTagihan = b.method === "Invoice / Agent" ? totalPokok : Math.max(0, totalPokok - deposit);
+                    let statusBayar = sisaTagihan === 0 ? "LUNAS" : (b.status === "hold" ? "HOLD / PENDING DP" : "DEPOSIT/PIUTANG");
+                    let nomorInv = b.nomor_inv || `INV-${dateStr.replace(/-/g,'')}-${r}`;
+
+                    let nights = 1;
+                    if (b.checkInDate && b.checkOutDate) {
+                        const d1 = new Date(b.checkInDate);
+                        const d2 = new Date(b.checkOutDate);
+                        const diff = d2.getTime() - d1.getTime();
+                        nights = Math.ceil(diff / (1000 * 3600 * 24)) || 1;
+                    }
+
+                    let mLower = (b.method || "Cash").toLowerCase();
+                    if (mLower.includes("cash") || mLower.includes("tunai")) {
+                        summary.cashPokok += totalPokok; summary.cashDP += deposit;
+                    } else if (mLower.includes("edc") || mLower.includes("transfer") || mLower.includes("bank") || mLower.includes("qris")) {
+                        summary.edcPokok += totalPokok; summary.edcDP += deposit;
+                    } else {
+                        summary.agentPokok += totalPokok; summary.agentDP += deposit;
+                    }
+
+                    rowsData.push({
+                        "NOMOR INVOICE": nomorInv,
+                        "TANGGAL AGENDA": dateStr,
+                        "KAMAR": namaKamarSistem,
+                        "NAMA TAMU": b.nama,
+                        "KONTAK/WA": b.kontak || "-",
+                        "CHECK IN": b.checkInDate || dateStr,
+                        "CHECK OUT": b.checkOutDate || dateStr,
+                        "DURASI (MALAM)": nights,
+                        "METODE BAYAR": b.method || "Cash",
+                        "NILAI TRANSAKSI KAMAR": totalPokok,
+                        "UANG YANG SUDAH DITERIMA": deposit,
+                        "SISA TAGIHAN": sisaTagihan,
+                        "STATUS": statusBayar
+                    });
+                } else {
+                    rowsData.push({
+                        "NOMOR INVOICE": "-",
+                        "TANGGAL AGENDA": dateStr,
+                        "KAMAR": namaKamarSistem,
+                        "NAMA TAMU": "KOSONG / NIHIL",
+                        "KONTAK/WA": "-",
+                        "CHECK IN": "-",
+                        "CHECK OUT": "-",
+                        "DURASI (MALAM)": 0,
+                        "METODE BAYAR": "-",
+                        "NILAI TRANSAKSI KAMAR": 0,
+                        "UANG YANG SUDAH DITERIMA": 0,
+                        "SISA TAGIHAN": 0,
+                        "STATUS": "KOSONG"
+                    });
+                }
+            }
+            rowsData.push({});
+        }
+
+        let worksheet = XLSX.utils.json_to_sheet(rowsData);
+        let startRow = rowsData.length + 3; 
+
+        let cashSisa = Math.max(0, summary.cashPokok - summary.cashDP);
+        let edcSisa = Math.max(0, summary.edcPokok - summary.edcDP);
+        let agentSisa = Math.max(0, summary.agentPokok - summary.agentDP);
+
+        let summaryRows = [
+            ["", "", "", "", "", "", "", "", "RINGKASAN REKAPITULASI PENDAPATAN BULANAN (UP-TO-DATE)", "", "", ""],
+            ["", "", "", "", "", "", "", "", "METODE PEMBAYARAN", "NILAI TRANSAKSI KAMAR", "UANG YANG SUDAH DITERIMA", "SISA TAGIHAN (PIUTANG)"],
+            ["", "", "", "", "", "", "", "", "TOTAL CASH / TUNAI", summary.cashPokok, summary.cashDP, cashSisa],
+            ["", "", "", "", "", "", "", "", "TOTAL EDC / TRANSFER BANK", summary.edcPokok, summary.edcDP, edcSisa],
+            ["", "", "", "", "", "", "", "", "TOTAL INVOICE AGENT / OTA", summary.agentPokok, summary.agentDP, agentSisa],
+            ["", "", "", "", "", "", "", "", "GRAND TOTAL OMZET", 
+                summary.cashPokok + summary.edcPokok + summary.agentPokok, 
+                summary.cashDP + summary.edcDP + summary.agentDP,
+                cashSisa + edcSisa + agentSisa
+            ]
+        ];
+
+        XLSX.utils.sheet_add_aoa(worksheet, summaryRows, { origin: `A${startRow}` });
+
+        worksheet["!cols"] = [
+            { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 22 }, { wch: 14 }, 
+            { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 24 }, { wch: 26 }, { wch: 24 }, { wch: 14 }
+        ];
+
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Reservasi");
+        XLSX.writeFile(workbook, `Laporan_Booking_Pondok_Senaru_${monthName}_${year}.xlsx`);
+    }
+</script>
+</body>
+</html>
