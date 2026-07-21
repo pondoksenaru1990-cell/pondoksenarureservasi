@@ -23,9 +23,6 @@
             --border-color: #cbd5e1;
             --available-color: #2ec4b6;
             --booked-color: #e63946;
-            --hold-color: #dd6b20;
-            --inhouse-color: #3182ce;
-            --dirty-color: #e53e3e;
             --success-color: #2ea44f;
         }
 
@@ -90,24 +87,20 @@
         .day-status-summary { font-size: 0.58rem; font-weight: 700; padding: 2px 1px; border-radius: 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .status-all-empty { color: #00a389; background: #e6fffa; }
         .status-some-booked { color: #c53030; background: #fff5f5; }
-        .status-some-hold { color: #c05621; background: #feebc8; }
 
         .dashboard-detail-panel, .room-grid-panel {
             background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px;
         }
 
         .panel-header-title { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+        .section-group-header { background: #ebf4ff; color: var(--primary-color); padding: 10px; font-weight: bold; font-size: 0.85rem; border-radius: 6px; margin-top: 5px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
         
-        .section-group-header { 
-            background: #ebf4ff; color: var(--primary-color); padding: 10px; font-weight: bold; font-size: 0.85rem; 
-            border-radius: 6px; margin-top: 5px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; 
-        }
-        
+        /* CSS Tombol Cetak */
         .btn-print-group-selected { background: #dd6b20; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
         .btn-print-group-selected:hover { background: #c05621; }
 
-        .btn-deposit-group-selected { background: #2563eb; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
-        .btn-deposit-group-selected:hover { background: #1d4ed8; }
+        .btn-deposit-group-selected { background: #3182ce; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
+        .btn-deposit-group-selected:hover { background: #2b6cb0; }
 
         .btn-voucher-group-selected { background: #003580; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; text-align: center; }
         .btn-voucher-group-selected:hover { background: #002254; }
@@ -116,8 +109,8 @@
         .btn-delete-group-selected { background: #e63946; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex: 1; text-align: center; }
         .btn-delete-group-selected:hover { background: #c53030; }
         
-        .btn-input-group-selected { background: #2ea44f; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex: 1; text-align: center; }
-        .btn-input-group-selected:hover { background: #22863a; }
+        .btn-input-group-selected { background: #003580; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; flex: 1; text-align: center; }
+        .btn-input-group-selected:hover { background: #002254; }
 
         .booking-card-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .card-checkbox-area { display: flex; align-items: center; justify-content: center; }
@@ -132,20 +125,11 @@
         .badge-finance { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; width: 100%; }
         .badge-lunas { background: #e6fffa; color: #00a389; border: 1px solid #b2f5ea; }
         .badge-piutang { background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; }
-        .badge-hold { background: #feebc8; color: #c05621; border: 1px solid #fbd38d; }
-
-        .status-pill { font-size: 0.68rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .pill-booked { background: #fed7d7; color: #9b2c2c; }
-        .pill-hold { background: #feebc8; color: #9c4221; }
-        .pill-inhouse { background: #bee3f8; color: #2b6cb0; }
-        .pill-dirty { background: #e2e8f0; color: #4a5568; }
 
         .room-selection-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px; }
         .room-select-card { padding: 12px; border-radius: 8px; border: 2px solid #e2e8f0; cursor: pointer; display: flex; flex-direction: column; gap: 4px; font-weight: bold; font-size: 0.85rem; transition: all 0.2s; }
         .room-select-card.status-kosong { border-color: #b2f5ea; background: #e6fffa; color: #00a389; }
         .room-select-card.status-terisi { border-color: #fed7d7; background: #fff5f5; color: #c53030; }
-        .room-select-card.status-hold { border-color: #fbd38d; background: #fffaf0; color: #c05621; }
-        .room-select-card.status-inhouse { border-color: #bee3f8; background: #ebf8ff; color: #2b6cb0; }
 
         @media (min-width: 600px) {
             body { padding: 20px; max-width: 1200px; margin: 0 auto; }
@@ -158,6 +142,7 @@
             .room-selection-list { grid-template-columns: repeat(4, 1fr); }
             .room-select-card { flex-direction: row; justify-content: space-between; align-items: center; }
             .section-group-header { flex-direction: row; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+            .btn-print-group-selected { width: auto; }
         }
     </style>
 </head>
@@ -166,7 +151,7 @@
 <div class="app-header">
     <div class="app-title">
         <h1>Pondok Senaru Board</h1>
-        <p>Sistem Kalender Kamar & Manajemen Reservasi Terpadu</p>
+        <p>Sistem Kalender Kamar & Manajemen Reservasi Kamar</p>
     </div>
     
     <div class="control-panel">
@@ -330,20 +315,15 @@
             let isFocused = (dateStr === selectedDateStr) ? "focus-highlight" : "";
 
             let bookedCount = 0;
-            let holdCount = 0;
             if (globalFirebaseData[dateStr]) {
                 for (let r = 1; r <= 8; r++) {
-                    let st = globalFirebaseData[dateStr][`room_${r}`]?.status;
-                    if (st === "booked" || st === "CheckedIn") bookedCount++;
-                    else if (st === "hold") holdCount++;
+                    if (globalFirebaseData[dateStr][`room_${r}`]?.status === "booked") bookedCount++;
                 }
             }
 
             let statusHTML = `<div class="day-status-summary status-all-empty">🟢 Kosong</div>`;
             if (bookedCount > 0) {
                 statusHTML = `<div class="day-status-summary status-some-booked">🔒 ${bookedCount} Kmr</div>`;
-            } else if (holdCount > 0) {
-                statusHTML = `<div class="day-status-summary status-some-hold">⏳ ${holdCount} Hold</div>`;
             }
 
             gridContainer.innerHTML += `
@@ -382,7 +362,7 @@
             for (let r = 1; r <= 8; r++) {
                 let rKey = `room_${r}`;
                 let b = globalFirebaseData[dateStr][rKey];
-                if (b && (b.status === "booked" || b.status === "hold" || b.status === "CheckedIn" || b.status === "CheckedOut")) {
+                if (b && b.status === "booked") {
                     itemsList.push({ roomKey: rKey, data: b, roomNum: r });
                 }
             }
@@ -392,9 +372,9 @@
         if(itemsList.length > 0) {
             htmlContent += `
                 <div class="section-group-header">
-                    <span>📑 Tamu Menginap / Reservasi Terdaftar</span>
+                    <span>📑 Tamu Menginap Terdaftar</span>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <button class="btn-print-group-selected" onclick="printManualSelectedInvoice('${dateStr}')">📙 Cetak Invoice Pelunas</button>
+                        <button class="btn-print-group-selected" onclick="printManualSelectedInvoice('${dateStr}')">📙 Cetak Invoice Terpilih</button>
                         <button class="btn-deposit-group-selected" onclick="printDepositInvoiceSelected('${dateStr}')">🏦 Cetak Deposit Invoice (Rachmawati)</button>
                         <button class="btn-voucher-group-selected" onclick="printManualSelectedVoucher('${dateStr}')">🎟️ Cetak Voucher Terpilih</button>
                     </div>
@@ -416,22 +396,27 @@
                 let depositPaid = Number(b.deposit) || 0;
                 let sisaUtang = b.method === "Invoice / Agent" ? totalBill : Math.max(0, totalBill - depositPaid);
                 
-                let statusBadge = "";
-                if (b.status === "hold") {
-                    statusBadge = `<div class="badge-finance badge-hold"><span style="font-weight:bold;">⏳ HOLD (PENDING DP)</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>`;
-                } else {
-                    statusBadge = sisaUtang > 0 ? 
-                        `<div class="badge-finance badge-piutang"><span style="color:#c53030; font-weight:bold;">UTANG: Rp ${sisaUtang.toLocaleString('id-ID')}</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>` : 
-                        `<div class="badge-finance badge-lunas"><span style="color:#00a389; font-weight:bold;">LUNAS (Rp ${depositPaid.toLocaleString('id-ID')})</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>`;
-                }
+                let statusBadge = sisaUtang > 0 ? 
+                    `<div class="badge-finance badge-piutang"><span style="color:#c53030; font-weight:bold;">UTANG: Rp ${sisaUtang.toLocaleString('id-ID')}</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>` : 
+                    `<div class="badge-finance badge-lunas"><span style="color:#00a389; font-weight:bold;">LUNAS (Rp ${depositPaid.toLocaleString('id-ID')})</span><br><small style="color:#718096;">Total: Rp ${totalBill.toLocaleString('id-ID')}</small></div>`;
                 
                 let displayNotes = b.notes && b.notes !== "null" ? `<div class="card-notes"><b>📌 Catatan:</b> ${b.notes}</div>` : "";
 
-                let statusPill = "";
-                if (b.status === "CheckedIn") statusPill = `<span class="status-pill pill-inhouse">🔵 In-House</span>`;
-                else if (b.status === "CheckedOut") statusPill = `<span class="status-pill pill-dirty">🔴 Dirty / Check-Out</span>`;
-                else if (b.status === "hold") statusPill = `<span class="status-pill pill-hold">⏳ Hold</span>`;
-                else statusPill = `<span class="status-pill pill-booked">🔒 Reserved</span>`;
+                // --- TIMESTAMP DISIMPAN DI KANAN BAWAH (ELEGAN & MUTED GREY) ---
+                let timestampHTML = "";
+                if (b.updatedAt || b.createdAt) {
+                    let rawTime = b.updatedAt || b.createdAt;
+                    let dateObj = new Date(rawTime);
+                    let formattedTime = isNaN(dateObj.getTime()) ? rawTime : dateObj.toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                    
+                    timestampHTML = `
+                        <div style="font-size:0.7rem; color:#718096; font-style:italic; margin-top:4px;">
+                            ⏱️ Diubah: ${formattedTime}
+                        </div>`;
+                }
 
                 htmlContent += `
                     <div class="booking-card-item" onclick="openFormEdit('${dateStr}', '${rKey}')">
@@ -440,7 +425,7 @@
                         </div>
                         <div class="card-left">
                             <div class="card-guest-name">
-                                ${b.nama} ${statusPill}
+                                ${b.nama} 
                                 <span style="font-size:1rem; color:#003580; font-weight:800; background:#eBF4FF; padding:2px 6px; border-radius:4px; margin-left:6px; border:1px solid #bee3f8;">
                                     🏷️ ${infoKamar.name}
                                 </span>
@@ -451,6 +436,7 @@
                         <div class="card-right">
                             ${statusBadge}
                             <div style="font-size:0.75rem; color:#4a5568; font-weight:600; margin-top:2px;">💳 ${b.method || 'Cash'}</div>
+                            ${timestampHTML}
                         </div>
                     </div>
                 `;
@@ -473,17 +459,9 @@
         container.innerHTML = "";
         for (let r = 1; r <= 8; r++) {
             let rKey = `room_${r}`;
-            let roomData = globalFirebaseData[selectedDateStr]?.[rKey];
-            let cardClass = "status-kosong";
-            let labelStatus = "🟢 Kosong";
-
-            if (roomData) {
-                if (roomData.status === "booked") { cardClass = "status-terisi"; labelStatus = `🔒 ${roomData.nama}`; }
-                else if (roomData.status === "hold") { cardClass = "status-hold"; labelStatus = `⏳ Hold: ${roomData.nama}`; }
-                else if (roomData.status === "CheckedIn") { cardClass = "status-inhouse"; labelStatus = `🔵 ${roomData.nama}`; }
-                else if (roomData.status === "CheckedOut") { cardClass = "status-terisi"; labelStatus = `🔴 Dirty (${roomData.nama})`; }
-            }
-
+            let isBooked = globalFirebaseData[selectedDateStr]?.[rKey]?.status === "booked";
+            let cardClass = isBooked ? "status-terisi" : "status-kosong";
+            let labelStatus = isBooked ? `🔒 ${globalFirebaseData[selectedDateStr][rKey].nama}` : "🟢 Kosong";
             container.innerHTML += `
                 <div class="room-select-card ${cardClass}" onclick="openFormEdit('${selectedDateStr}', '${rKey}')">
                     <span>Kamar ${r}</span>
@@ -506,7 +484,9 @@
         }
     });
 
-    // 1. FUNGSI CETAK INVOICE STANDAR / PELUNASAN (KE INVOICE.HTML)
+    // =========================================================================
+    // CETAK INVOICE TERPILIH (VERSI ASLI TANPA DIRUBAH)
+    // =========================================================================
     function printManualSelectedInvoice(dateStr) {
         let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
         if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak!"); return; }
@@ -524,7 +504,23 @@
                 let totalKamarIni = subKamar + subExbed;
                 totalSemuaKamar += totalKamarIni;
 
-                let depositKamarIni = Number(b.deposit) || 0;
+                let depositKamarIni = 0;
+                if (b.checkInDate && b.checkOutDate) {
+                    let start = new Date(b.checkInDate);
+                    let end = new Date(b.checkOutDate);
+                    
+                    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+                        let loopDateStr = d.toISOString().split('T')[0];
+                        if (globalFirebaseData[loopDateStr] && globalFirebaseData[loopDateStr][rKey]) {
+                            let dataHariIni = globalFirebaseData[loopDateStr][rKey];
+                            if (dataHariIni.nama === b.nama) {
+                                depositKamarIni += (Number(dataHariIni.deposit) || 0);
+                            }
+                        }
+                    }
+                } else {
+                    depositKamarIni = Number(b.deposit) || 0;
+                }
                 totalSemuaDeposit += depositKamarIni;
 
                 listKamarGabungan.push({
@@ -538,27 +534,36 @@
             }
         });
 
+        let formattedStay = (baseBooking.checkInDate && baseBooking.checkOutDate) ? `${baseBooking.checkInDate} s/d ${baseBooking.checkOutDate}` : dateStr;
+
         const dataInvoice = {
-            bookingId: Date.now().toString().slice(-6),
+            nama_properti: "PONDOK SENARU",
+            tipe_properti: "Cottage & Restaurant - Senaru, Lombok",
+            alamat_properti: "Jl. Pariwisata Senaru, Kec. Bayan, Kabupaten Lombok Utara, NTB",
+            nomor_inv: "INV-" + Date.now().toString().slice(-8),
+            tanggal_inv: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
             nama_tamu: baseBooking.nama || "Guest",
             whatsapp: baseBooking.kontak || "-",
-            email: baseBooking.email || "-",
+            periode_stay: formattedStay,
             checkIn: baseBooking.checkInDate || dateStr,
             checkOut: baseBooking.checkOutDate || dateStr,
-            paxAdult: baseBooking.paxAdult || 2,
             items: listKamarGabungan,
             total_harga: totalSemuaKamar, 
-            deposit_harga: totalSemuaDeposit
+            deposit_harga: totalSemuaDeposit,
+            metode_bayar: baseBooking.method || "Cash",
+            info_rekening: `Bank: ${baseBooking.bankNama}\nNo. Rekening: ${baseBooking.bankNomor}\nAtas Nama: ${baseBooking.bankPemilik}`
         };
 
-        localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataInvoice));
+        localStorage.setItem('invoicePondokSenaru', JSON.stringify(dataInvoice));
         window.open('invoice.html', '_blank');
     }
 
-    // 2. FUNGSI CETAK DEPOSIT INVOICE (KE DEPOSIT-INVOICE.HTML)
+    // =========================================================================
+    // FITUR BARU: CETAK DEPOSIT INVOICE (RACHMAWATI)
+    // =========================================================================
     function printDepositInvoiceSelected(dateStr) {
         let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
-        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak deposit invoicenya!"); return; }
+        if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak depositnya!"); return; }
 
         let listKamarGabungan = [];
         let totalSemuaKamar = 0, totalSemuaDeposit = 0, baseBooking = null;
@@ -587,66 +592,65 @@
             }
         });
 
-        const dataInvoice = {
-            bookingId: Date.now().toString().slice(-6),
+        let formattedStay = (baseBooking.checkInDate && baseBooking.checkOutDate) ? `${baseBooking.checkInDate} s/d ${baseBooking.checkOutDate}` : dateStr;
+
+        const dataDepositInvoice = {
+            isDepositMode: true,
+            nama_properti: "PONDOK SENARU",
+            tipe_properti: "Cottage & Restaurant - Senaru, Lombok",
+            alamat_properti: "Jl. Pariwisata Senaru, Kec. Bayan, Kabupaten Lombok Utara, NTB",
+            nomor_inv: "DEP-" + Date.now().toString().slice(-8),
+            tanggal_inv: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
             nama_tamu: baseBooking.nama || "Guest",
             whatsapp: baseBooking.kontak || "-",
-            email: baseBooking.email || "-",
+            periode_stay: formattedStay,
             checkIn: baseBooking.checkInDate || dateStr,
             checkOut: baseBooking.checkOutDate || dateStr,
-            paxAdult: baseBooking.paxAdult || 2,
             items: listKamarGabungan,
             total_harga: totalSemuaKamar, 
-            deposit_harga: totalSemuaDeposit
+            deposit_harga: totalSemuaDeposit,
+            metode_bayar: baseBooking.method || "Cash",
+            info_rekening: "Bank BRI: 4744-01-017647-53-6\na.n Rachmawati"
         };
 
-        localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataInvoice));
-        window.open('deposit-invoice.html', '_blank');
+        localStorage.setItem('depositInvoicePondokSenaru', JSON.stringify(dataDepositInvoice));
+        window.open('invoice_deposit.html', '_blank');
     }
 
-    // 3. FUNGSI CETAK VOUCHER (KE VOUCHER.HTML)
+    // =========================================================================
+    // FITUR BARU: CETAK VOUCHER TERPILIH
+    // =========================================================================
     function printManualSelectedVoucher(dateStr) {
         let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
         if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak vouchernya!"); return; }
 
-        let listKamarGabungan = [];
-        let totalSemuaKamar = 0, totalSemuaDeposit = 0, baseBooking = null;
+        let listKamar = [];
+        let baseBooking = null;
 
         checkboxes.forEach(cb => {
             let rKey = cb.value;
             let b = globalFirebaseData[dateStr][rKey];
             if (b) {
                 if (!baseBooking) baseBooking = b;
-                let subKamar = Number(b.harga) || 0;
-                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 150000);
-                let totalKamarIni = subKamar + subExbed;
-                totalSemuaKamar += totalKamarIni;
-
-                let depositKamarIni = Number(b.deposit) || 0;
-                totalSemuaDeposit += depositKamarIni;
-
-                listKamarGabungan.push({
+                listKamar.push({
                     nama_kamar: roomDetailsMapping[rKey].name,
-                    tipe_kamar: roomDetailsMapping[rKey].type,
-                    harga_kamar: subKamar,
-                    exbed_qty: Number(b.extraBedQty) || 0
+                    tipe_kamar: roomDetailsMapping[rKey].type
                 });
             }
         });
 
+        let formattedStay = (baseBooking.checkInDate && baseBooking.checkOutDate) ? `${baseBooking.checkInDate} s/d ${baseBooking.checkOutDate}` : dateStr;
+
         const dataVoucher = {
-            nomor_res: "RES-" + Date.now().toString().slice(-6),
+            nomor_voucher: "VCH-" + Date.now().toString().slice(-8),
+            tanggal_voucher: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
             nama_tamu: baseBooking.nama || "Guest",
             whatsapp: baseBooking.kontak || "-",
-            email: baseBooking.email || "-",
+            periode_stay: formattedStay,
             checkIn: baseBooking.checkInDate || dateStr,
             checkOut: baseBooking.checkOutDate || dateStr,
-            paxAdult: baseBooking.paxAdult || 2,
-            paxChild: baseBooking.paxChild || 0,
-            metode_bayar: baseBooking.method || "Cash",
-            items: listKamarGabungan,
-            total_harga: totalSemuaKamar,
-            deposit_harga: totalSemuaDeposit
+            items: listKamar,
+            catatan: baseBooking.notes || "-"
         };
 
         localStorage.setItem('voucherPondokSenaru', JSON.stringify(dataVoucher));
@@ -669,6 +673,9 @@
         });
     }
 
+    // =========================================================================
+    // MASTER EXPORT EXCEL (VERSI ASLI TANPA DIRUBAH)
+    // =========================================================================
     function exportToExcelByMonth() {
         let year = currentFocusDate.getFullYear();
         let month = currentFocusDate.getMonth();
@@ -691,13 +698,13 @@
                 let namaKamarSistem = roomDetailsMapping[rKey].name;
                 let b = globalFirebaseData[dateStr]?.[rKey];
                 
-                if (b && (b.status === "booked" || b.status === "hold" || b.status === "CheckedIn")) {
+                if (b && b.status === "booked") {
                     let hargaKamarBase = Number(b.harga) || 0;
                     let extraBedTotal = (Number(b.extraBedQty) || 0) * 150000;
                     let totalPokok = hargaKamarBase + extraBedTotal; 
                     let deposit = Number(b.deposit) || 0;
                     let sisaTagihan = b.method === "Invoice / Agent" ? totalPokok : Math.max(0, totalPokok - deposit);
-                    let statusBayar = sisaTagihan === 0 ? "LUNAS" : (b.status === "hold" ? "HOLD / PENDING DP" : "DEPOSIT/PIUTANG");
+                    let statusBayar = sisaTagihan === 0 ? "LUNAS" : "DEPOSIT/PIUTANG";
                     let nomorInv = b.nomor_inv || `INV-${dateStr.replace(/-/g,'')}-${r}`;
 
                     let nights = 1;
@@ -750,6 +757,7 @@
                     });
                 }
             }
+            
             rowsData.push({});
         }
 

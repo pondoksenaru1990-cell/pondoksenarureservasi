@@ -155,9 +155,10 @@
                         <div class="form-group">
                             <label>Metode Pembayaran:</label>
                             <select id="editMethod" onchange="liveCalculateBilling()">
-                                <option value="Cash">Tunai / Cash</option>
-                                <option value="EDC">EDC / Transfer Bank</option>
-                                <option value="Invoice / Agent">Invoice / Tagihan Agent</option>
+                                <option value="Cash">Tunai atau Cash</option>
+                                <option value="EDC">EDC</option>
+                                <option value="Transfer">Transfer Bank atau QRIS</option>
+                                <option value="Invoice">Invoice atau Tagihan</option>
                             </select>
                         </div>
                     </div>
@@ -257,7 +258,6 @@
             document.getElementById('editEmailTamu').value = b.email || "";
             document.getElementById('editCheckIn').value = b.checkInDate || selectedDateStr;
             
-            // Mengatur default Check-Out (CheckIn + 1 Hari jika belum ada)
             if (b.checkOutDate) {
                 document.getElementById('editCheckOut').value = b.checkOutDate;
             } else {
@@ -286,6 +286,10 @@
             document.getElementById('editCheckOut').value = dIn.toISOString().split('T')[0];
 
             document.getElementById('editNotes').value = "";
+            
+            document.getElementById('editBankNama').value = "BCA (Bank Central Asia)";
+            document.getElementById('editBankNomor').value = "0561608791";
+            document.getElementById('editBankPemilik').value = "RAHMAWATI RACHMAN";
         }
         liveCalculateBilling();
     }
@@ -337,7 +341,8 @@
             notes: document.getElementById('editNotes').value.trim(),
             bankNama: document.getElementById('editBankNama').value.trim(),
             bankNomor: document.getElementById('editBankNomor').value.trim(),
-            bankPemilik: document.getElementById('editBankPemilik').value.trim()
+            bankPemilik: document.getElementById('editBankPemilik').value.trim(),
+            updatedAt: new Date().toISOString()
         };
 
         let oldGuestName = "";
@@ -345,7 +350,6 @@
             oldGuestName = globalFirebaseData[selectedDateStr][selectedRoomKey].nama || "";
         }
 
-        // Anti Double Booking Validation
         let startCheck = new Date(payload.checkInDate);
         let endCheck = new Date(payload.checkOutDate);
         let isConflict = false;
@@ -374,7 +378,6 @@
 
         let promises = [];
 
-        // Hapus data lama jika ada pergeseran nama/tanggal
         if (oldGuestName !== "") {
             let cleanDate = new Date(startCheck);
             while (cleanDate < endCheck) {
@@ -390,7 +393,6 @@
             }
         }
 
-        // Tulis data reservasi baru di seluruh tanggal menginap
         let writeDate = new Date(startCheck);
         while (writeDate < endCheck) {
             let loopDateStr = `${writeDate.getFullYear()}-${String(writeDate.getMonth() + 1).padStart(2, '0')}-${String(writeDate.getDate()).padStart(2, '0')}`;
