@@ -559,7 +559,7 @@
     }
 
     // =========================================================================
-    // FITUR BARU: CETAK DEPOSIT INVOICE (RACHMAWATI)
+    // FITUR: CETAK DEPOSIT INVOICE (RACHMAWATI)
     // =========================================================================
     function printDepositInvoiceSelected(dateStr) {
         let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
@@ -618,23 +618,35 @@
     }
 
     // =========================================================================
-    // FITUR BARU: CETAK VOUCHER TERPILIH
+    // FITUR: CETAK VOUCHER TERPILIH (LENGKAP DENGAN PERBAIKAN RINCIAN BIAYA)
     // =========================================================================
     function printManualSelectedVoucher(dateStr) {
         let checkboxes = document.querySelectorAll('.manual-inv-select:checked');
         if (checkboxes.length === 0) { alert("Silakan centang terlebih dahulu kamar yang ingin dicetak vouchernya!"); return; }
 
         let listKamar = [];
+        let totalSemuaKamar = 0;
+        let totalSemuaDeposit = 0;
         let baseBooking = null;
 
         checkboxes.forEach(cb => {
             let rKey = cb.value;
-            let b = globalFirebaseData[dateStr][rKey];
+            let b = globalFirebaseData[dateStr]?.[rKey];
             if (b) {
                 if (!baseBooking) baseBooking = b;
+
+                let hargaPokok = Number(b.harga) || 0;
+                let subExbed = (Number(b.extraBedQty) || 0) * (Number(b.extraBedPrice) || 150000);
+                let totalKamarIni = hargaPokok + subExbed;
+                
+                totalSemuaKamar += totalKamarIni;
+                totalSemuaDeposit += (Number(b.deposit) || 0);
+
                 listKamar.push({
                     nama_kamar: roomDetailsMapping[rKey].name,
-                    tipe_kamar: roomDetailsMapping[rKey].type
+                    tipe_kamar: roomDetailsMapping[rKey].type,
+                    harga_kamar: hargaPokok,
+                    exbed_qty: Number(b.extraBedQty) || 0
                 });
             }
         });
@@ -642,13 +654,19 @@
         let formattedStay = (baseBooking.checkInDate && baseBooking.checkOutDate) ? `${baseBooking.checkInDate} s/d ${baseBooking.checkOutDate}` : dateStr;
 
         const dataVoucher = {
-            nomor_voucher: "VCH-" + Date.now().toString().slice(-8),
+            nomor_res: "RES-" + Date.now().toString().slice(-8),
             tanggal_voucher: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
             nama_tamu: baseBooking.nama || "Guest",
             whatsapp: baseBooking.kontak || "-",
+            email: baseBooking.email || "-",
             periode_stay: formattedStay,
             checkIn: baseBooking.checkInDate || dateStr,
             checkOut: baseBooking.checkOutDate || dateStr,
+            paxAdult: baseBooking.paxAdult || 2,
+            paxChild: baseBooking.paxChild || 0,
+            metode_bayar: baseBooking.method || "Cash",
+            total_harga: totalSemuaKamar,
+            deposit_harga: totalSemuaDeposit,
             items: listKamar,
             catatan: baseBooking.notes || "-"
         };
