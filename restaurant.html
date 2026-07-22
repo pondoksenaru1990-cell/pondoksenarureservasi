@@ -42,157 +42,44 @@
 
         .btn-submit { background: var(--primary-color); color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
         
-        .order-list-item { border-left: 4px solid var(--primary-color); background: #fdfdfd; padding: 10px; border-radius: 0 8px 8px 0; margin-bottom: 8px; border-top: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; position: relative; }
-        .order-meta { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+        /* Gaya Item List Diperbaiki */
+        .order-list-item { 
+            border-left: 4px solid var(--primary-color); 
+            background: #fdfdfd; 
+            padding: 10px 90px 10px 10px; 
+            border-radius: 0 8px 8px 0; 
+            margin-bottom: 8px; 
+            border: 1px solid #f1f5f9; 
+            position: relative; 
+        }
+        
+        .order-list-content {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            width: 100%;
+        }
+
+        .total-display {
+            color: #b45309; 
+            white-space: nowrap; 
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-left: 10px;
+        }
         
         .action-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
         .btn-opt { padding: 4px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; cursor: pointer; border: 1px solid #cbd5e1; }
         .btn-print { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .btn-delete { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
-        
-        .badge-status { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
-        .status-hutang { background: #fef3c7; color: #92400e; }
-        .status-lunas { background: #dcfce7; color: #166534; }
-        .status-cas-kamar { background: #e0f2fe; color: #0369a1; }
 
-        /* Area Cetak Tersembunyi Default */
         #printArea { display: none; }
 
-        /* GAYA PRINT BARU: ELEGAN SEPERTI INVOICE KAMAR */
         @media print {
-            @page {
-                size: A4;
-                margin: 15mm 12mm;
-            }
-            body {
-                background: white !important;
-                color: #1e293b !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                font-family: 'Segoe UI', system-ui, sans-serif !important;
-                font-size: 11pt !important;
-            }
-            .header, .grid-layout, .action-buttons, button, script { 
-                display: none !important; 
-            }
-            #printArea { 
-                display: block !important; 
-                width: 100%;
-            }
-            .invoice-wrapper {
-                position: relative;
-                color: #1e293b;
-            }
-            .invoice-header {
-                display: table;
-                width: 100%;
-                border-bottom: 3px solid #003580;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-            .invoice-logo-side {
-                display: table-cell;
-                vertical-align: top;
-            }
-            .invoice-title-side {
-                display: table-cell;
-                vertical-align: top;
-                text-align: right;
-            }
-            .brand-name { font-size: 18pt; font-weight: bold; color: #003580; text-transform: uppercase; }
-            .brand-sub { font-size: 10pt; color: #d97706; font-weight: bold; letter-spacing: 1px; }
-            .brand-address { font-size: 8.5pt; color: #475569; line-height: 1.3; margin-top: 5px; }
-            .invoice-title-text { font-size: 16pt; font-weight: bold; color: #003580; }
-            .invoice-meta-table {
-                display: table;
-                width: 100%;
-                margin-bottom: 25px;
-                font-size: 10pt;
-            }
-            .invoice-meta-col {
-                display: table-cell;
-                width: 50%;
-                vertical-align: top;
-            }
-            .invoice-meta-col table { width: 100%; border-collapse: collapse; }
-            .invoice-meta-col td { padding: 4px 2px; vertical-align: top; }
-            .invoice-meta-col td.label { width: 35%; color: #475569; font-weight: 500; }
-            .invoice-meta-col td.value { font-weight: bold; color: #003580; }
-            
-            /* Cap Status Pembayaran */
-            .stamp-badge {
-                position: absolute;
-                top: 80px;
-                right: 30px;
-                border: 3px solid #166534;
-                color: #166534;
-                font-size: 14pt;
-                font-weight: bold;
-                padding: 6px 15px;
-                border-radius: 6px;
-                text-transform: uppercase;
-                transform: rotate(-8deg);
-                opacity: 0.85;
-                background: white;
-            }
-            .stamp-badge.stamp-unpaid { border-color: #ef4444; color: #ef4444; }
-            .stamp-badge.stamp-room { border-color: #0369a1; color: #0369a1; }
-
-            /* Tabel Rincian Menu */
-            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            .invoice-table th { background: #003580; color: white; font-weight: bold; padding: 8px 10px; font-size: 9.5pt; text-align: left; }
-            .invoice-table td { padding: 10px; border-bottom: 1px solid #cbd5e1; font-size: 9.5pt; }
-            .invoice-table th.num, .invoice-table td.num { text-align: right; }
-            
-            /* Total section */
-            .invoice-summary-table {
-                float: right;
-                width: 45%;
-                border-collapse: collapse;
-                margin-top: 10px;
-                font-size: 10pt;
-            }
-            .invoice-summary-table td { padding: 5px 0; }
-            .invoice-summary-table td.label { text-align: left; color: #475569; }
-            .invoice-summary-table td.val { text-align: right; font-weight: bold; }
-            .invoice-summary-table tr.grand-row td {
-                border-top: 2px dashed #d97706;
-                padding-top: 8px;
-                font-size: 11pt;
-                font-weight: bold;
-                color: #b45309;
-            }
-
-            /* Kolom Tanda Tangan */
-            .signature-section {
-                margin-top: 150px;
-                display: table;
-                width: 100%;
-                clear: both;
-            }
-            .signature-box {
-                display: table-cell;
-                width: 50%;
-                text-align: center;
-                font-size: 9.5pt;
-            }
-            .signature-line {
-                margin-top: 70px;
-                width: 60%;
-                margin-left: auto;
-                margin-right: auto;
-                border-top: 1px solid #94a3b8;
-                padding-top: 5px;
-                font-weight: bold;
-            }
-            .footer-note {
-                margin-top: 50px;
-                text-align: center;
-                font-size: 8.5pt;
-                color: #64748b;
-                border-top: 1px solid #e2e8f0;
-                padding-top: 10px;
-            }
+            @page { size: A4; margin: 15mm 12mm; }
+            body { background: white !important; color: #1e293b !important; padding: 0 !important; margin: 0 !important; font-family: 'Segoe UI', sans-serif !important; font-size: 11pt !important; }
+            .header, .grid-layout, .action-buttons, button, script { display: none !important; }
+            #printArea { display: block !important; width: 100%; }
         }
     </style>
 </head>
@@ -201,7 +88,6 @@
 <div class="header">
     <div>
         <h1>🍽️ Kasir Restoran (Mandiri)</h1>
-        <p style="font-size: 0.8rem; color: #64748b;">Pencatatan Bon & Cetak Nota Mandiri Bebas Gangguan Kalender</p>
     </div>
     <a href="index.html" class="btn-back">◀ Ke Kalender</a>
 </div>
@@ -209,67 +95,51 @@
 <div class="grid-layout">
     <div class="card">
         <div class="card-title">📝 Input Transaksi Baru</div>
-        
         <div class="form-group">
             <label>TANGGAL TRANSAKSI</label>
             <input type="date" id="orderDate" class="form-control" onchange="loadOrdersAndActiveRooms()">
         </div>
-
         <div class="form-group">
             <label>STATUS PEMBAYARAN KULINER</label>
             <select id="paymentStatus" class="form-control" onchange="toggleRoomSelector()">
-                <option value="paid">Lunas (Langsung Cash / Transfer / EDC)</option>
-                <option value="unpaid">Hutang Belum Bayar (Beban Pribadi)</option>
-                <option value="charge_room">🧹 Cas ke Kamar (Charge to Room)</option>
+                <option value="paid">Lunas</option>
+                <option value="unpaid">Hutang</option>
+                <option value="charge_room">🧹 Cas ke Kamar</option>
             </select>
         </div>
-
         <div class="form-group" id="roomSelectContainer" style="display: none; background: #f0fdf4; padding: 10px; border-radius: 6px; border: 1px solid #bbf7d0;">
-            <label style="color: #166534;">PILIH KAMAR YANG AKTIF MENGINAP</label>
+            <label style="color: #166534;">PILIH KAMAR</label>
             <select id="activeRoomKey" class="form-control" onchange="autoFillTamuDariKamar()"></select>
         </div>
-
         <div class="form-group">
-            <label>NOMOR KAMAR / MEJA (MISAL: KAMAR 01 / MEJA 05)</label>
-            <input type="text" id="roomOrTable" class="form-control" placeholder="Contoh: Kamar 01 atau Meja 03">
+            <label>NOMOR KAMAR / MEJA</label>
+            <input type="text" id="roomOrTable" class="form-control" placeholder="Contoh: Kamar 01">
         </div>
-
         <div class="form-group">
             <label>NAMA TAMU / PELANGGAN</label>
             <input type="text" id="guestName" class="form-control" placeholder="Nama tamu">
         </div>
-
         <div class="form-group">
-            <label>MENU KULINER YANG DIPESAN</label>
+            <label>MENU KULINER</label>
             <div id="menuItemsContainer"></div>
-            <button type="button" class="btn-add-item" onclick="addMenuRow()">➕ Tambah Menu Baru</button>
+            <button type="button" class="btn-add-item" onclick="addMenuRow()">➕ Tambah Menu</button>
         </div>
-
-        <!-- FITUR PENGATURAN TAX & SERVICE -->
         <div class="checkbox-container">
-            <label class="checkbox-item">
-                <input type="checkbox" id="includeService" checked onchange="hitungOtimatis()"> Service Charge (5%)
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" id="includeTax" checked onchange="hitungOtimatis()"> PB1 / Pajak (10%)
-            </label>
+            <label class="checkbox-item"><input type="checkbox" id="includeService" checked onchange="hitungOtimatis()"> Service (5%)</label>
+            <label class="checkbox-item"><input type="checkbox" id="includeTax" checked onchange="hitungOtimatis()"> Tax (10%)</label>
         </div>
-
         <div class="kalkulasi-box">
-            <div class="kalkulasi-item"><span>Subtotal Konsumsi:</span> <span id="textSubtotal">Rp 0</span></div>
-            <div class="kalkulasi-item"><span>Service Charge:</span> <span id="textService">Rp 0</span></div>
-            <div class="kalkulasi-item"><span>PB1 / Tax:</span> <span id="textTax">Rp 0</span></div>
-            <div class="kalkulasi-item grand-total"><span>Total Struk:</span> <span id="textGrandTotal">Rp 0</span></div>
+            <div class="kalkulasi-item"><span>Subtotal:</span> <span id="textSubtotal">Rp 0</span></div>
+            <div class="kalkulasi-item"><span>Service:</span> <span id="textService">Rp 0</span></div>
+            <div class="kalkulasi-item"><span>Tax:</span> <span id="textTax">Rp 0</span></div>
+            <div class="kalkulasi-item grand-total"><span>Total:</span> <span id="textGrandTotal">Rp 0</span></div>
         </div>
-
-        <button class="btn-submit" onclick="simpanBonRestoran()">💾 Simpan & Cetak Struk</button>
+        <button class="btn-submit" onclick="simpanBonRestoran()">💾 Simpan & Cetak</button>
     </div>
 
     <div class="card">
-        <div class="card-title">📊 Penjualan Restoran Hari Ini</div>
-        <div id="listOrderHariIni">
-            <p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:20px;">Silakan pilih tanggal untuk melihat daftar bon.</p>
-        </div>
+        <div class="card-title">📊 Penjualan Hari Ini</div>
+        <div id="listOrderHariIni"></div>
     </div>
 </div>
 
@@ -277,232 +147,33 @@
 
 <script>
     const FIREBASE_URL = "https://kalender-8a7b2-default-rtdb.firebaseio.com/";
-    let currentFetchedRoomsData = {};
     
-    window.onload = function() {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
-        
-        addMenuRow();
-        loadOrdersAndActiveRooms();
-    };
-
-    function loadOrdersAndActiveRooms() {
-        loadOrdersByDate();
-        fetchActiveRoomsByDate();
-    }
-
-    function addMenuRow() {
-        const container = document.getElementById('menuItemsContainer');
-        const div = document.createElement('div');
-        div.className = 'menu-row';
-        div.innerHTML = `
-            <input type="text" placeholder="Nama Menu" class="form-control item-nama" required style="flex: 2;">
-            <input type="number" placeholder="Harga" class="form-control item-harga" oninput="hitungOtimatis()" required style="flex: 1.5;">
-            <input type="number" placeholder="Qty" class="form-control item-qty" value="1" oninput="hitungOtimatis()" required style="flex: 0.8;">
-            <button type="button" class="btn-remove" onclick="this.parentElement.remove(); hitungOtimatis();">❌</button>
-        `;
-        container.appendChild(div);
-    }
-
-    function hitungOtimatis() {
-        let subtotal = 0;
-        const rows = document.querySelectorAll('.menu-row');
-        
-        rows.forEach(row => {
-            const harga = Number(row.querySelector('.item-harga').value) || 0;
-            const qty = Number(row.querySelector('.item-qty').value) || 0;
-            subtotal += (harga * qty);
-        });
-
-        const isServiceChecked = document.getElementById('includeService').checked;
-        const isTaxChecked = document.getElementById('includeTax').checked;
-
-        let serviceCharge = isServiceChecked ? Math.round(subtotal * 0.05) : 0;
-        let taxCharge = isTaxChecked ? Math.round(subtotal * 0.10) : 0;
-        let grandTotal = subtotal + serviceCharge + taxCharge;
-
-        document.getElementById('textSubtotal').innerText = "Rp " + subtotal.toLocaleString('id-ID');
-        document.getElementById('textService').innerText = "Rp " + serviceCharge.toLocaleString('id-ID');
-        document.getElementById('textTax').innerText = "Rp " + taxCharge.toLocaleString('id-ID');
-        document.getElementById('textGrandTotal').innerText = "Rp " + grandTotal.toLocaleString('id-ID');
-
-        return { subtotal, serviceCharge, taxCharge, grandTotal, isServiceChecked, isTaxChecked };
-    }
-
-    function toggleRoomSelector() {
-        const status = document.getElementById("paymentStatus").value;
-        const container = document.getElementById("roomSelectContainer");
-        if (status === "charge_room") {
-            container.style.display = "block";
-            autoFillTamuDariKamar();
-        } else {
-            container.style.display = "none";
-        }
-    }
-
-    function fetchActiveRoomsByDate() {
-        const dateStr = document.getElementById('orderDate').value;
-        if (!dateStr) return;
-
-        fetch(`${FIREBASE_URL}bookings/${dateStr}.json`)
-        .then(res => res.json())
-        .then(data => {
-            currentFetchedRoomsData = data || {};
-            const dropdown = document.getElementById("activeRoomKey");
-            dropdown.innerHTML = '<option value="">-- Pilih Kamar --</option>';
-            
-            let adaTamu = false;
-            for (let r = 1; r <= 8; r++) {
-                let rKey = `room_${r}`;
-                if (currentFetchedRoomsData[rKey] && currentFetchedRoomsData[rKey].status === "booked") {
-                    adaTamu = true;
-                    let namaKamar = rKey.replace('_', ' ').toUpperCase();
-                    dropdown.innerHTML += `<option value="${rKey}">${namaKamar} (${currentFetchedRoomsData[rKey].nama})</option>`;
-                }
-            }
-
-            if (!adaTamu) {
-                dropdown.innerHTML = '<option value="">Tidak ada kamar terisi pada tanggal ini</option>';
-            }
-            toggleRoomSelector();
-        });
-    }
-
-    function autoFillTamuDariKamar() {
-        const roomKey = document.getElementById("activeRoomKey").value;
-        if (roomKey && currentFetchedRoomsData[roomKey]) {
-            document.getElementById("guestName").value = currentFetchedRoomsData[roomKey].nama;
-            document.getElementById("roomOrTable").value = roomKey.replace('_', ' ').toUpperCase();
-        }
-    }
-
-    function simpanBonRestoran() {
-        const dateStr = document.getElementById('orderDate').value;
-        const paymentStatus = document.getElementById('paymentStatus').value;
-        const roomOrTable = document.getElementById('roomOrTable').value || "Umum";
-        const guestName = document.getElementById('guestName').value || "Pelanggan Walk-In";
-        const targetRoomKey = document.getElementById("activeRoomKey").value;
-        
-        if(!dateStr) { alert("Pilih tanggal transaksi!"); return; }
-        
-        if (paymentStatus === "charge_room" && !targetRoomKey) {
-            alert("Harap pilih kamar menginap aktif terlebih dahulu!");
-            return;
-        }
-
-        const rows = document.querySelectorAll('.menu-row');
-        if(rows.length === 0) { alert("Input item makanan kosong!"); return; }
-
-        let items = [];
-        rows.forEach(row => {
-            let nama = row.querySelector('.item-nama').value;
-            let harga = Number(row.querySelector('.item-harga').value) || 0;
-            let qty = Number(row.querySelector('.item-qty').value) || 0;
-            if(nama) {
-                items.push({ item: nama, harga: harga, qty: qty, total: (harga * qty) });
-            }
-        });
-
-        const calc = hitungOtimatis();
-        const timestampStr = new Date().toLocaleTimeString('id-ID');
-
-        let payload = {
-            lokasi: roomOrTable,
-            tamu: guestName,
-            items: items,
-            subtotal: calc.subtotal,
-            service: calc.serviceCharge,
-            tax: calc.taxCharge,
-            grandTotal: calc.grandTotal,
-            status: paymentStatus,
-            timestamp: timestampStr,
-            hasService: calc.isServiceChecked,
-            hasTax: calc.isTaxChecked
-        };
-
-        fetch(`${FIREBASE_URL}standalone_restaurant_orders/${dateStr}.json`, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            if (paymentStatus === "charge_room" && targetRoomKey) {
-                let infoBookingAsli = currentFetchedRoomsData[targetRoomKey];
-                let catatanLama = (infoBookingAsli.notes && infoBookingAsli.notes !== "null") ? infoBookingAsli.notes : "";
-                let catatanBaru = `${catatanLama} [Cas Resto: Rp ${calc.grandTotal.toLocaleString('id-ID')} (${timestampStr})]`.trim();
-
-                fetch(`${FIREBASE_URL}bookings/${dateStr}/${targetRoomKey}/notes.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(catatanBaru)
-                }).then(() => {
-                    lanjutSelesaiSimpan();
-                });
-            } else {
-                lanjutSelesaiSimpan();
-            }
-        });
-    }
-
-    function lanjutSelesaiSimpan() {
-        alert("Transaksi restoran berhasil disimpan!");
-        document.getElementById('menuItemsContainer').innerHTML = "";
-        document.getElementById('guestName').value = "";
-        document.getElementById('roomOrTable').value = "";
-        document.getElementById('includeService').checked = true;
-        document.getElementById('includeTax').checked = true;
-        addMenuRow();
-        hitungOtimatis();
-        loadOrdersAndActiveRooms();
-    }
-
     function loadOrdersByDate() {
         const dateStr = document.getElementById('orderDate').value;
         const container = document.getElementById('listOrderHariIni');
         if(!dateStr) return;
 
-        container.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:20px;">Memuat arsip...</p>`;
-
         fetch(`${FIREBASE_URL}standalone_restaurant_orders/${dateStr}.json`)
         .then(res => res.json())
         .then(data => {
-            if(!data) {
-                container.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:20px;">Belum ada penjualan kuliner hari ini.</p>`;
-                return;
-            }
+            if(!data) { container.innerHTML = "Belum ada data."; return; }
 
             let html = "";
             Object.keys(data).forEach(key => {
                 let order = data[key];
-                let listItems = order.items.map(i => `<li>${i.qty}x ${i.item} (@Rp ${i.harga.toLocaleString('id-ID')})</li>`).join("");
-                
-                let badge = "";
-                if (order.status === 'paid') {
-                    badge = `<span class="badge-status status-lunas">🟢 Lunas</span>`;
-                } else if (order.status === 'charge_room') {
-                    badge = `<span class="badge-status status-cas-kamar">🧹 Cas Kamar</span>`;
-                } else {
-                    badge = `<span class="badge-status status-hutang">🔴 Hutang</span>`;
-                }
-
                 html += `
                     <div class="order-list-item">
                         <div class="action-buttons">
-                            <button class="btn-opt btn-print" onclick="cetakStrukNota('${dateStr}', '${key}')">🖨️ Cetak</button>
-                            <button class="btn-opt btn-delete" onclick="hapusBonMurni('${dateStr}', '${key}')">🗑️ Hapus</button>
+                            <button class="btn-opt btn-print" onclick="cetakStrukNota('${dateStr}', '${key}')">🖨️</button>
+                            <button class="btn-opt btn-delete" onclick="hapusBonMurni('${dateStr}', '${key}')">🗑️</button>
                         </div>
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9rem; padding-right:120px;">
-                            <span style="color:#003580;">📍 ${order.lokasi} - ${order.tamu} ${badge}</span>
-                            <span style="color:#b45309;">Rp ${order.grandTotal.toLocaleString('id-ID')}</span>
-                        </div>
-                        <ul style="margin-left: 18px; font-size:0.8rem; color:#475569; margin-top:5px;">
-                            ${listItems}
-                        </ul>
-                        <div class="order-meta">
-                            <span>Sub: Rp ${order.subtotal.toLocaleString('id-ID')} | Serv: Rp ${(order.service || 0).toLocaleString('id-ID')} | Pajak: Rp ${(order.tax || 0).toLocaleString('id-ID')}</span>
-                            <br><small>🕒 Jam: ${order.timestamp || '-'}</small>
+                        <div class="order-list-content">
+                            <span style="color:#003580; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:bold;">
+                                📍 ${order.lokasi} - ${order.tamu}
+                            </span>
+                            <span class="total-display">
+                                Rp ${order.grandTotal.toLocaleString('id-ID')}
+                            </span>
                         </div>
                     </div>
                 `;
@@ -511,126 +182,7 @@
         });
     }
 
-    function hapusBonMurni(dateStr, key) {
-        if(!confirm("Hapus permanen bon ini?")) return;
-        fetch(`${FIREBASE_URL}standalone_restaurant_orders/${dateStr}/${key}.json`, { method: 'DELETE' })
-        .then(() => {
-            alert("Terhapus!");
-            loadOrdersAndActiveRooms();
-        });
-    }
-
-    function cetakStrukNota(dateStr, key) {
-        fetch(`${FIREBASE_URL}standalone_restaurant_orders/${dateStr}/${key}.json`)
-        .then(res => res.json())
-        .then(order => {
-            if(!order) return;
-            const pArea = document.getElementById('printArea');
-            
-            let tableRows = order.items.map((i, idx) => `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td><b>${i.item}</b></td>
-                    <td class="num">${i.qty}</td>
-                    <td class="num">Rp ${i.harga.toLocaleString('id-ID')}</td>
-                    <td class="num">Rp ${i.total.toLocaleString('id-ID')}</td>
-                </tr>
-            `).join("");
-
-            let statusCetak = "PAID / LUNAS";
-            let stampClass = "stamp-paid";
-            if(order.status === 'unpaid') { statusCetak = "UNPAID / HUTANG"; stampClass = "stamp-unpaid"; }
-            if(order.status === 'charge_room') { statusCetak = "CHARGE TO ROOM"; stampClass = "stamp-room"; }
-
-            // Logika sembunyikan baris jika tax/service nilainya 0 atau bernilai false
-            let serviceRow = (order.service && order.service > 0) ? `<tr><td class="label">Service Charge (5%)</td><td class="val">Rp ${order.service.toLocaleString('id-ID')}</td></tr>` : '';
-            let taxRow = (order.tax && order.tax > 0) ? `<tr><td class="label">PB1 / Tax (10%)</td><td class="val">Rp ${order.tax.toLocaleString('id-ID')}</td></tr>` : '';
-
-            // Render Invoice Premium A4
-            pArea.innerHTML = `
-                <div class="invoice-wrapper">
-                    <div class="stamp-badge ${stampClass}">${statusCetak}</div>
-                    
-                    <div class="invoice-header">
-                        <div class="invoice-logo-side">
-                            <div class="brand-name">Pondok Senaru</div>
-                            <div class="brand-sub">COTTAGE & RESTORAN</div>
-                            <div class="brand-address">
-                                Jl. Pariwisata Senaru, Kec. Bayan, Kabupaten Lombok Utara<br>
-                                Nusa Tenggara Barat (NTB) - Indonesia, 83354<br>
-                                📞 081803624129 | ✉️ info.pondoksenaru@yahoo.com
-                            </div>
-                        </div>
-                        <div class="invoice-title-side">
-                            <div class="invoice-title-text">BILL / RECEIPT</div>
-                            <div style="font-size: 9.5pt; margin-top: 5px; color:#475569;">Restoran Order</div>
-                        </div>
-                    </div>
-
-                    <div class="invoice-meta-table">
-                        <div class="invoice-meta-col">
-                            <table>
-                                <tr><td class="label">Nama Tamu</td><td class="value">: ${order.tamu}</td></tr>
-                                <tr><td class="label">Meja / Kamar</td><td class="value">: ${order.lokasi}</td></tr>
-                            </table>
-                        </div>
-                        <div class="invoice-meta-col">
-                            <table>
-                                <tr><td class="label">Tanggal</td><td class="value">: ${dateStr}</td></tr>
-                                <tr><td class="label">Waktu Order</td><td class="value">: ${order.timestamp || '-'} Wita</td></tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <table class="invoice-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">No</th>
-                                <th style="width: 50%;">Deskripsi Menu</th>
-                                <th class="num" style="width: 10%;">Qty</th>
-                                <th class="num" style="width: 15%;">Harga Satuan</th>
-                                <th class="num" style="width: 20%;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${tableRows}
-                        </tbody>
-                    </table>
-
-                    <table class="invoice-summary-table">
-                        <tr>
-                            <td class="label">Subtotal Konsumsi</td>
-                            <td class="val">Rp ${order.subtotal.toLocaleString('id-ID')}</td>
-                        </tr>
-                        ${serviceRow}
-                        ${taxRow}
-                        <tr class="grand-row">
-                            <td class="label">GRAND TOTAL</td>
-                            <td class="val">Rp ${order.grandTotal.toLocaleString('id-ID')}</td>
-                        </tr>
-                    </table>
-
-                    <div class="signature-section">
-                        <div class="signature-box">
-                            <p>Diterima Oleh,</p>
-                            <div class="signature-line">Kasir / Staf Resto</div>
-                        </div>
-                        <div class="signature-box">
-                            <p>Pelanggan / Tamu,</p>
-                            <div class="signature-line">Tanda Tangan</div>
-                        </div>
-                    </div>
-
-                    <div class="footer-note">
-                        Terima Kasih Atas Kunjungan Anda di Pondok Senaru Resto<br>
-                        <small>Dokumen ini sah dikeluarkan oleh sistem manajemen billing kasir terintegrasi.</small>
-                    </div>
-                </div>
-            `;
-            
-            window.print();
-        });
-    }
+    window.onload = () => { loadOrdersAndActiveRooms(); };
 </script>
 </body>
 </html>
